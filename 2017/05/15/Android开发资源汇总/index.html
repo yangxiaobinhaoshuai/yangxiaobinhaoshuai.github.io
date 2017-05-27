@@ -3,14 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Hexo</title>
+  <title>Android开发资源汇总 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="开发路上的捡到的芝麻和西瓜记录在开发过程中捡到的资源，有芝麻也有西瓜，敝帚自珍，好高骛远也要脚踏实地。希望能为各位大佬的宝贵青春+1s～ 在线工具： 在线生成icon： Generic icon generator 在线生成button：botton maker 在线生成各种shape：shape generator 代码模板（如：webview、解析json等）、IDE插件等资源： codota">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android开发资源汇总">
+<meta property="og:url" content="http://yoursite.com/2017/05/15/Android开发资源汇总/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="开发路上的捡到的芝麻和西瓜记录在开发过程中捡到的资源，有芝麻也有西瓜，敝帚自珍，好高骛远也要脚踏实地。希望能为各位大佬的宝贵青春+1s～ 在线工具： 在线生成icon： Generic icon generator 在线生成button：botton maker 在线生成各种shape：shape generator 代码模板（如：webview、解析json等）、IDE插件等资源： codota">
+<meta property="og:updated_time" content="2017-05-16T06:03:33.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
+<meta name="twitter:title" content="Android开发资源汇总">
+<meta name="twitter:description" content="开发路上的捡到的芝麻和西瓜记录在开发过程中捡到的资源，有芝麻也有西瓜，敝帚自珍，好高骛远也要脚踏实地。希望能为各位大佬的宝贵青春+1s～ 在线工具： 在线生成icon： Generic icon generator 在线生成button：botton maker 在线生成各种shape：shape generator 代码模板（如：webview、解析json等）、IDE插件等资源： codota">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -59,50 +63,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-Fragment使用心得" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/05/16/Fragment使用心得/" class="article-date">
-  <time datetime="2017-05-16T06:31:10.000Z" itemprop="datePublished">2017-05-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/16/Fragment使用心得/">Fragment</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h3><ol>
-<li>新建fragment 布局默认是透明的，能够透传点击事件，也就是说能够点到下层布局上的控件。通常我都是在xml加上一个背景色（当然不要加透明通道），一个clickable=true（或者让fragment拦截事件，都行），这样它会拦截所有事件。当然你也可以在BaseFragment当中把布局渲染回来设置这两项属性。</li>
-<li>google 推荐不要用构造器传参，因为内存重启的时候，系统为你恢复fragment的时候不会调用你带参数的构造器，这样你的参数就会是null，调用参数的地方会是空指针。</li>
-<li></li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/16/Fragment使用心得/" data-id="cj36nama40000smfymxo2i8ez" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Android开发资源汇总" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Android开发资源汇总" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/05/15/Android开发资源汇总/" class="article-date">
   <time datetime="2017-05-15T14:17:09.000Z" itemprop="datePublished">2017-05-15</time>
@@ -115,8 +76,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/15/Android开发资源汇总/">Android开发资源汇总</a>
+    <h1 class="article-title" itemprop="name">
+      Android开发资源汇总
     </h1>
   
 
@@ -200,10 +161,23 @@
     </footer>
   </div>
   
-</article>
-
+    
+<nav id="article-nav">
+  
+    <a href="/2017/05/16/Fragment使用心得/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Fragment
+        
+      </div>
+    </a>
+  
+  
+</nav>
 
   
+</article>
 
 </section>
         
