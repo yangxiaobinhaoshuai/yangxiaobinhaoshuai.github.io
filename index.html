@@ -323,7 +323,7 @@
         
           
             <h1 id="官方对该控件的描述"><a href="#官方对该控件的描述" class="headerlink" title="官方对该控件的描述"></a>官方对该控件的描述</h1><p><img src="img/description_swiperefreshlayout.png" alt="图片"></p>
-<p>“当你通过垂方向的滑动手势来刷新内容的时候，你可以用这个控件，实例化这个控件的activity 需要添加一个（注意是add，增量逻辑） OnRefreshListenner 来监听刷新事件的完毕；当刷新手势结束后，控件会通知每一个add 过的监听，在监听回调方法中你可以刷新内容，当然如果内容刷新后，需要结束刷新动画，你需要调用swipeRefreshLayout.setRefreshing(false)来结束刷新动画，如果activity 想展示加载进度，可以调用swipeRefreshlayout.setRefreshing(true),如果想禁用滑动手势触发刷新动画，就调用setEnable（false）“</p>
+<p>   “当你通过垂方向的滑动手势来刷新内容的时候，你可以用这个控件，实例化这个控件的activity 需要添加一个（注意是add，增量逻辑） OnRefreshListenner 来监听刷新事件的完毕；当刷新手势结束后，控件会通知每一个add 过的监听，在监听回调方法中你可以刷新内容，当然如果内容刷新后，需要结束刷新动画，你需要调用swipeRefreshLayout.setRefreshing(false)来结束刷新动画，如果activity 想展示加载进度，可以调用swipeRefreshlayout.setRefreshing(true),如果想禁用滑动手势触发刷新动画，就调用setEnable（false）“<br>   该控件需作为要刷新的控件的直接父View，且有且只能有一个子View，会拦截手势，而且会强行自适应这个子View。这个控件不提供任何对事件的操控操作，作为代替，当手势触发的时候一个菜单项会被提供来刷新内容“</p>
 
           
         
