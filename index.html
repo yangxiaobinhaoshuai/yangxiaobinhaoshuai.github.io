@@ -445,7 +445,7 @@
 </ol>
 <p>是什么fragment 对应强转就行了。</p>
 <ol>
-<li><p>fragment 移除的话直接在fragment 中调用   getFragmentManager().popBackStack();即可，而且这个方法有重载满足移除fragment的不同需求，可以点进去看下，这里不赘述。并且，fragmentManager还提供了这个方法<br><img src="img/addbackchangelistener" alt="图片"><br>提供了一个fragment在stack发生变化时回调的方法</p>
+<li><p>fragment 移除的话直接在fragment 中调用   getFragmentManager().popBackStack();即可，而且这个方法有重载满足移除fragment的不同需求，可以点进去看下，这里不赘述。并且，fragmentManager还提供了这个方法<br><img src="img/addbackchangelistener.png" alt="图片"><br>提供了一个fragment在stack发生变化时回调的方法</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">@Override public void onBackStackChanged() &#123;</div><div class="line">             </div><div class="line">         &#125;</div></pre></td></tr></table></figure>
 </li>
 </ol>
