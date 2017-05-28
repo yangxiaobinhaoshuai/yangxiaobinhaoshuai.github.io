@@ -441,11 +441,9 @@
 <li>当你在一个跟布局为Linearlayout的Activity中add fragment的时候，fragment 不会覆盖全屏，只会根据LinearLayout的布局方向，add到最后或者右边（LinearLayout不具备层叠效果）；这时如果一定要add fragment的话，可以给LinearLayout外层套一个FrameLayout，fragment add 其上。</li>
 <li><p>响应back键：如果能在Activity中获取到fragment 实例，那再简单不过了。说一种能不能都行的方法： </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">   @Override public void onBackPressed() &#123;</div><div class="line">  Fragment fragmentById = getFragmentManager().findFragmentById(android.R.id.content);</div><div class="line">  if (!fragmentById.isRemoving()) &#123;</div><div class="line">    return;</div><div class="line">  &#125;</div><div class="line">  super.onBackPressed();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-</ol>
 <p>是什么fragment 对应强转就行了。</p>
-<ol>
-<li><p>fragment 移除的话直接在fragment 中调用   getFragmentManager().popBackStack();即可，而且这个方法有重载满足移除fragment的不同需求，可以点进去看下，这里不赘述。并且，fragmentManager还提供了这个方法<br><img src="img/addbackchangelistener.png" alt="图片"><br>提供了一个fragment在stack发生变化时回调的方法</p>
+</li>
+<li><p>fragment 移除的话直接在fragment 中调用   getFragmentManager().popBackStack();即可，而且这个方法有重载满足移除fragment的不同需求，可以点进去看下，这里不赘述。并且，fragmentManager还提供了这个方法<br><img src="img/addonbackchangelistener.png" alt="图片"><br>提供了一个fragment在stack发生变化时回调的方法</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">@Override public void onBackStackChanged() &#123;</div><div class="line">             </div><div class="line">         &#125;</div></pre></td></tr></table></figure>
 </li>
 </ol>
