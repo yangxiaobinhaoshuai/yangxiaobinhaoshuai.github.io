@@ -369,11 +369,7 @@
 </ul>
 </li>
 </ol>
-<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">     /**</div><div class="line"> * Returns the (non-null) Node at the specified element index.</div><div class="line"> */</div><div class="line">Node&lt;E&gt; node(int index) &#123;</div><div class="line">    // assert isElementIndex(index);</div><div class="line"></div><div class="line">    if (index &lt; (size &gt;&gt; 1)) &#123;</div><div class="line">        Node&lt;E&gt; x = first;</div><div class="line">        for (int i = 0; i &lt; index; i++)</div><div class="line">            x = x.next;</div><div class="line">        return x;</div><div class="line">    &#125; else &#123;</div><div class="line">        Node&lt;E&gt; x = last;</div><div class="line">        for (int i = size - 1; i &gt; index; i--)</div><div class="line">            x = x.prev;</div><div class="line">        return x;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-
-
-
-   可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。
+<pre><code>可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。
 </code></pre><ol>
 <li>Vector：<ul>
 <li>线程安全的Arraylist</li>

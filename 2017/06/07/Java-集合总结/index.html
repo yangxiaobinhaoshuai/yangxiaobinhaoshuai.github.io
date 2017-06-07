@@ -98,7 +98,7 @@
 <meta property="og:description" content="先上一张图，理解下集合之间的相互关系：其中：实线代表继承；虚线代表实现接口。 下面这张表示Map的：c：classi：interface继承和实现关系简单明了。 通常我们常用的也就ArrayList和HashMap，不过还是需要了解下各个集合特点和底层实现的～ List特点：  有序，有角标  支持for循环和增强for循环  允许重复的元素  实现类 ArrayList：  底层是数组 查找效率">
 <meta property="og:image" content="http://yoursite.com/2017/06/07/Java-集合总结/img/java_collections.jpeg">
 <meta property="og:image" content="http://yoursite.com/2017/06/07/Java-集合总结/img/java_maps.jpeg">
-<meta property="og:updated_time" content="2017-06-07T08:30:12.000Z">
+<meta property="og:updated_time" content="2017-06-07T08:31:09.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 集合总结">
 <meta name="twitter:description" content="先上一张图，理解下集合之间的相互关系：其中：实线代表继承；虚线代表实现接口。 下面这张表示Map的：c：classi：interface继承和实现关系简单明了。 通常我们常用的也就ArrayList和HashMap，不过还是需要了解下各个集合特点和底层实现的～ List特点：  有序，有角标  支持for循环和增强for循环  允许重复的元素  实现类 ArrayList：  底层是数组 查找效率">
@@ -367,11 +367,7 @@
 </ul>
 </li>
 </ol>
-<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">     /**</div><div class="line"> * Returns the (non-null) Node at the specified element index.</div><div class="line"> */</div><div class="line">Node&lt;E&gt; node(int index) &#123;</div><div class="line">    // assert isElementIndex(index);</div><div class="line"></div><div class="line">    if (index &lt; (size &gt;&gt; 1)) &#123;</div><div class="line">        Node&lt;E&gt; x = first;</div><div class="line">        for (int i = 0; i &lt; index; i++)</div><div class="line">            x = x.next;</div><div class="line">        return x;</div><div class="line">    &#125; else &#123;</div><div class="line">        Node&lt;E&gt; x = last;</div><div class="line">        for (int i = size - 1; i &gt; index; i--)</div><div class="line">            x = x.prev;</div><div class="line">        return x;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-
-
-
-   可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。
+<pre><code>可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。
 </code></pre><ol>
 <li>Vector：<ul>
 <li>线程安全的Arraylist</li>
