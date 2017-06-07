@@ -369,6 +369,72 @@
 <ol>
 <li>Vector：<ul>
 <li>线程安全的Arraylist</li>
+<li>stack:</li>
+</ul>
+</li>
+</ol>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>特点：</p>
+<ol>
+<li>无序</li>
+<li>不允许元素重复</li>
+<li>null值</li>
+</ol>
+<h4 id="实现类-1"><a href="#实现类-1" class="headerlink" title="实现类"></a>实现类</h4><ol>
+<li>HashSet<ul>
+<li>无序</li>
+<li>为保证无序，如果元素是对象，必须覆写hashcode和equals方法，equals方法实际上是为了提高效率的，真正区别两个元素不同的还是hashcode方法</li>
+</ul>
+</li>
+<li>LinkedHashSet<ul>
+<li>HashMap的子类</li>
+<li>非线程安全</li>
+<li>有序，遍历先得到是先插入的</li>
+<li>涉及到链表，插入速度快，查询速度慢</li>
+</ul>
+</li>
+<li>TreeSet</li>
+</ol>
+<ul>
+<li>有序</li>
+<li>非线程安全</li>
+<li>对象需要实现Comparable接口或者用需要传入Comparator的构造器<h3 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h3>特点：</li>
+</ul>
+<ol>
+<li>无序</li>
+<li>键值对</li>
+<li>null值</li>
+<li>遍历需要keySet或者EntrySet<ul>
+<li>推荐使用EntrySet，keySet实际上get到了key作为一个集合，然后在根据key 获取Value，实际上是遍历了两次，而EntrySet本身就封装了键和值，遍历一次即可</li>
+</ul>
+</li>
+</ol>
+<h4 id="实现类-2"><a href="#实现类-2" class="headerlink" title="实现类"></a>实现类</h4><ol>
+<li>HashMap<ul>
+<li>非线程安全</li>
+<li>key不能重复，但是value可以重复；key的实现就是HashSet；</li>
+<li>允许null的键或值；</li>
+<li>重复key put的时候后者value会覆盖</li>
+<li>遍历时获取数据的是随机的</li>
+<li>根据键的hashCode来存储数据</li>
+</ul>
+</li>
+<li>TreeMap<ul>
+<li>有序</li>
+<li>Key是TreeSet，但是Value必须实现Comparable接口，或者用需要传入Comparator的那个构造器。</li>
+</ul>
+</li>
+<li>HashTable<ul>
+<li>线程安全的HashMap</li>
+<li>不允许null的键或值；</li>
+</ul>
+</li>
+<li>LinkedHashMap<ul>
+<li>有序，遍历的时候先得到的是先插入的</li>
+<li></li>
+</ul>
+</li>
+<li>Properties<ul>
+<li>key和value都是String类型，一半用来读取配置文件。</li>
 </ul>
 </li>
 </ol>
