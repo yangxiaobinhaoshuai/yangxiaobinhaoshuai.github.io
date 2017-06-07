@@ -359,35 +359,21 @@
 <li><p>LinkedList：</p>
 <ul>
 <li>底层是链表</li>
-<li>增加和删除效率，查找慢<ul>
-<li>基本元素是Node，Node封装三个内容：元素值，前一个node和后一个node； 所以理论上一个元素只能知道它前一个和后一个的元素，所以查找起来比较慢。具体如下：</li>
+<li><p>增加和删除效率，查找慢</p>
+<ul>
+<li><p>基本元素是Node，Node封装三个内容：元素值，前一个node和后一个node； 所以理论上一个元素只能知道它前一个和后一个的元素，所以查找起来比较慢。具体如下：</p>
+<p>这是根据索引查找元素的get方法，中间那句是为了检测索引是否越界，越界就会跑出异常，点进return 的方法中</p>
+</li>
 </ul>
 </li>
 </ul>
 </li>
 </ol>
-<pre><code>   <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">   public E get(int index) &#123;</div><div class="line">    checkElementIndex(index);</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line">   ``` </div><div class="line"> </div><div class="line"> </div><div class="line"> </div><div class="line">   这是根据索引查找元素的get方法，中间那句是为了检测索引是否越界，越界就会跑出异常，点进return 的方法中</div></pre></td></tr></table></figure>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">     /**</div><div class="line"> * Returns the (non-null) Node at the specified element index.</div><div class="line"> */</div><div class="line">Node&lt;E&gt; node(int index) &#123;</div><div class="line">    // assert isElementIndex(index);</div><div class="line"></div><div class="line">    if (index &lt; (size &gt;&gt; 1)) &#123;</div><div class="line">        Node&lt;E&gt; x = first;</div><div class="line">        for (int i = 0; i &lt; index; i++)</div><div class="line">            x = x.next;</div><div class="line">        return x;</div><div class="line">    &#125; else &#123;</div><div class="line">        Node&lt;E&gt; x = last;</div><div class="line">        for (int i = size - 1; i &gt; index; i--)</div><div class="line">            x = x.prev;</div><div class="line">        return x;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 
-     /**
- * Returns the (non-null) Node at the specified element index.
- */
-Node&lt;E&gt; node(int index) {
-    // assert isElementIndex(index);
 
-    if (index &lt; (size &gt;&gt; 1)) {
-        Node&lt;E&gt; x = first;
-        for (int i = 0; i &lt; index; i++)
-            x = x.next;
-        return x;
-    } else {
-        Node&lt;E&gt; x = last;
-        for (int i = size - 1; i &gt; index; i--)
-            x = x.prev;
-        return x;
-    }
-}
-</code></pre><p>```</p>
-<pre><code>可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。
+
+   可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。
 </code></pre><ol>
 <li>Vector：<ul>
 <li>线程安全的Arraylist</li>
