@@ -98,7 +98,7 @@
 <meta property="og:description" content="先上一张图，理解下集合之间的相互关系：其中：实线代表继承；虚线代表实现接口。 下面这张表示Map的：c：classi：interface继承和实现关系简单明了。 通常我们常用的也就ArrayList和HashMap，不过还是需要了解下各个集合特点和底层实现的～ List特点：  有序，有角标  支持for循环和增强for循环  允许重复的元素  实现类 ArrayList：  底层是数组 查找效率">
 <meta property="og:image" content="http://yoursite.com/2017/06/07/Java-集合总结/img/java_collections.jpeg">
 <meta property="og:image" content="http://yoursite.com/2017/06/07/Java-集合总结/img/java_maps.jpeg">
-<meta property="og:updated_time" content="2017-06-07T08:18:52.000Z">
+<meta property="og:updated_time" content="2017-06-07T08:19:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 集合总结">
 <meta name="twitter:description" content="先上一张图，理解下集合之间的相互关系：其中：实线代表继承；虚线代表实现接口。 下面这张表示Map的：c：classi：interface继承和实现关系简单明了。 通常我们常用的也就ArrayList和HashMap，不过还是需要了解下各个集合特点和底层实现的～ List特点：  有序，有角标  支持for循环和增强for循环  允许重复的元素  实现类 ArrayList：  底层是数组 查找效率">
@@ -357,31 +357,38 @@
 <li><p>LinkedList：</p>
 <ul>
 <li>底层是链表</li>
-<li><p>增加和删除效率，查找慢</p>
-<ul>
-<li><p>基本元素是Node，Node封装三个内容：元素值，前一个node和后一个node； 所以理论上一个元素只能知道它前一个和后一个的元素，所以查找起来比较慢。具体如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">   public E get(int index) &#123;</div><div class="line">    checkElementIndex(index);</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line">   ``` </div><div class="line">   </div><div class="line">   </div><div class="line">   这是根据索引查找元素的get方法，中间那句是为了检测索引是否越界，越界就会跑出异常，点进return 的方法中</div></pre></td></tr></table></figure>
-<p> /**</p>
-</li>
-</ul>
-<ul>
-<li><p>Returns the (non-null) Node at the specified element index.<br>*/<br>Node<e> node(int index) {<br> // assert isElementIndex(index);</e></p>
-<p> if (index &lt; (size &gt;&gt; 1)) {</p>
-<pre><code>Node&lt;E&gt; x = first;
-for (int i = 0; i &lt; index; i++)
-    x = x.next;
-return x;
-</code></pre><p> } else {</p>
-<pre><code>Node&lt;E&gt; x = last;
-for (int i = size - 1; i &gt; index; i--)
-    x = x.prev;
-return x;
-</code></pre><p> }<br>}<br>```<br>可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。</p>
-</li>
+<li>增加和删除效率，查找慢<ul>
+<li>基本元素是Node，Node封装三个内容：元素值，前一个node和后一个node； 所以理论上一个元素只能知道它前一个和后一个的元素，所以查找起来比较慢。具体如下：</li>
 </ul>
 </li>
 </ul>
 </li>
+</ol>
+<pre><code>   <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">   public E get(int index) &#123;</div><div class="line">    checkElementIndex(index);</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line">   ``` </div><div class="line">   </div><div class="line">   </div><div class="line">   这是根据索引查找元素的get方法，中间那句是为了检测索引是否越界，越界就会跑出异常，点进return 的方法中</div></pre></td></tr></table></figure>
+
+     /**
+ * Returns the (non-null) Node at the specified element index.
+ */
+Node&lt;E&gt; node(int index) {
+    // assert isElementIndex(index);
+
+    if (index &lt; (size &gt;&gt; 1)) {
+        Node&lt;E&gt; x = first;
+        for (int i = 0; i &lt; index; i++)
+            x = x.next;
+        return x;
+    } else {
+        Node&lt;E&gt; x = last;
+        for (int i = size - 1; i &gt; index; i--)
+            x = x.prev;
+        return x;
+    }
+}
+   ```
+
+
+   可见，先是获取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。
+</code></pre><ol>
 <li>Vector：<ul>
 <li>线程安全的Arraylist</li>
 </ul>
