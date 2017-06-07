@@ -362,7 +362,7 @@
 <li><p>增加和删除效率，查找慢</p>
 <ul>
 <li><p>基本元素是Node，Node封装三个内容：元素值，前一个node和后一个node； 所以理论上一个元素只能知道它前一个和后一个的元素，所以查找起来比较慢。具体如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">   public E get(int index) &#123;</div><div class="line">    checkElementIndex(index);</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line">   ``` </div><div class="line">   </div><div class="line">   这是根据索引查找元素的get方法，中间那句是为了检测索引是否越界，越界就会跑出异常，点进return 的方法中</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">   public E get(int index) &#123;</div><div class="line">    checkElementIndex(index);</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line">   ``` </div><div class="line">   </div><div class="line">   </div><div class="line">   这是根据索引查找元素的get方法，中间那句是为了检测索引是否越界，越界就会跑出异常，点进return 的方法中</div></pre></td></tr></table></figure>
 <p> /**</p>
 </li>
 </ul>
