@@ -369,7 +369,7 @@
 <ol>
 <li>Vector：<ul>
 <li>线程安全的Arraylist</li>
-<li>stack:</li>
+<li>stack: 先进后出</li>
 </ul>
 </li>
 </ol>
@@ -435,6 +435,42 @@
 </li>
 <li>Properties<ul>
 <li>key和value都是String类型，一半用来读取配置文件。</li>
+</ul>
+</li>
+</ol>
+<h3 id="使用Tips"><a href="#使用Tips" class="headerlink" title="使用Tips"></a>使用Tips</h3><ol>
+<li>当元素个数固定，用 Array ，因为 Array 效率是最高的。 </li>
+<li>声明集合的时候尽量声明接口，不要实现类，方便以后修改，面向接口编程，java多态体现嘛</li>
+<li>声明集合的时候给出集合大小会提高集合效率，Map不知道大小就默认写16（默认容量大小）<ul>
+<li>HashMap中默认大小是16，默认负载因子是0.75，当满足结合size&gt;默认大小*负载因子的时候，集合就会以2倍形式扩容。所以，当数据量大的时候，不断的扩容和遍历集合都是相当耗费资源的</li>
+</ul>
+<ol>
+<li>Array.AsList 返回的ArrayList 不是我们平时用的ArrayList，而是ArrayList的一个顶级内部类，（没有add方法总之用起来会报错),用的时候New一个新的Arraylist，把AsList返回的集合放在新new的ArrayList构造器中重构一下，用new出来ArrayList即可</li>
+<li>不要在for循环中remove元素，用迭代器来remove</li>
+</ol>
+</li>
+</ol>
+<h3 id="Android-中的数据结构"><a href="#Android-中的数据结构" class="headerlink" title="Android 中的数据结构"></a>Android 中的数据结构</h3><ol>
+<li><p>SparseArray ：</p>
+<ul>
+<li>key为int类型的HashMap 可以用这个代替，Android 对其进行了优化</li>
+<li>有序的，put数据的时候是根据二分查找法，按照key值大小拍好序的，当然遍历时候取数据也是一样的</li>
+<li>虽说SparseArray性能比较好，但是由于其添加、查找、删除数据都需要先进行一次二分查找，所以在数据量大的情况下性能并不明显，所以数据量少的时候建议用这个代替HashMap</li>
+<li>有KeyAt（int index）和Value（int index）Api用于查找相应index的key或者value。</li>
+</ul>
+</li>
+<li><p>ArrayMap：</p>
+<ul>
+<li>无序，所谓无序其实是指它put的顺序和get的顺序不一样；它put的时候是按着key的hash值来一次put的，一定程度上也是有序吧… </li>
+<li>内部是使用两个数组进行数据存储，一个数组记录key的hash值，另外一个数组记录Value值</li>
+<li>跟SparseArray 类似，不过key可以是任意类型</li>
+<li>数据量小的时候适用</li>
+<li>ArrayMap提供了数组收缩的功能，在clear或remove后，会重新收缩数组</li>
+<li>扩容的时候会copy数组，并不是new 一个新的（HashMap会new一个新的）</li>
+</ul>
+</li>
+<li>LongSparseArray:当key为long类型时候的SparseArray<ul>
+<li>数据量小的时候适用</li>
 </ul>
 </li>
 </ol>
