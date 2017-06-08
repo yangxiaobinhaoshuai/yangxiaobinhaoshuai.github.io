@@ -693,17 +693,15 @@
 
       
         
-          
-            <p><img src="img/tablayout.png" alt="图片"></p>
-<p>&emsp;&emsp;如图，今天UI给了如图的效果图，我想了想相比自定义修改design下的tablayout 更简单些。<br>&emsp;&emsp;首先，分割线肯定是要继承TabKayout 在覆写的ondraw方法中画上去的，值得注意的是，我们需要获取到屏幕宽度和tab个数，View高度直接在构造器里是获取不到的，推荐在onWindowFocusChanged 方法中获取（此时View即将呈现固能获取到View高度）</p>
-<p>&emsp;&emsp;首先获取屏幕宽度作为view宽度，实例化画笔准备绘制分割线。<br><img src="img/code_initialize.png" alt="图片"></p>
-<p><img src="img/code_ondraw.png" alt="图片"></p>
-<p>&emsp;&emsp;分割线很简单，接下里是badge。原理上我们只要得到tab上的包裹textView的viewgroup，在其中add 上一个背景为红色圆形的textView就行了。但问题是textView被default修饰符所保护，我们拿不到，当然可以用反射，有点糙。我看了下源码，发现tab可以支持自定义布局，tab.setCustomView(res或者rootView），这就好办了，我们自定义个带有badgeTextView 的布局设置上即可。 值得注意的是，源码中注释有这么一句话</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">* If the inflated layout contains a &#123;@link TextView&#125; with an ID of</div><div class="line">* &#123;@link android.R.id#text1&#125; then that will be updated with the value given</div><div class="line">* to &#123;@link #setText(CharSequence)&#125;. Similarly, if this layout contains an</div><div class="line">* &#123;@link ImageView&#125; with ID &#123;@link android.R.id#icon&#125; then it will be updated with</div><div class="line">* the value given to &#123;@link #setIcon(Drawable)&#125;.</div></pre></td></tr></table></figure>
-<p>意思是，google已经为你自定义布局的textView 的id做了关联，你只需要调用android.R.id.text1 系统就会自动帮你实例化并且绑定数据到tablayout<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&lt;TextView</div><div class="line">    android:id=&quot;@android:id/text1&quot;</div><div class="line">    android:layout_width=&quot;match_parent&quot;</div><div class="line">    android:layout_height=&quot;match_parent&quot;/&gt;</div></pre></td></tr></table></figure></p>
-<p>其实，很多需求都可以在原有的控件上加以拓展，当然能够继承View或者ViewGroup，且写出易拓展，整洁而不影响性能，能够考虑到方方面面的库，能够启发帮助别人是最好的！</p>
-
-          
+          <p><img src="img/tablayout.png" alt="图片"></p>
+<p>&emsp;&emsp;如图，今天UI给了如图的效果图，我想了想相比自定义View,修改design下的tablayout 更简单些。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/05/31/design包TabLayout添加分割线和badge/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1039,37 +1037,20 @@
 
       
         
-          
-            <h3 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h3><ol>
+          <h3 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h3><ol>
 <li>新建fragment 布局默认是透明的，能够透传点击事件，也就是说能够点到下层布局上的控件。通常我都是在xml加上一个背景色（当然不要加透明通道），一个clickable=true（或者让fragment拦截事件，都行），这样它会拦截所有事件。当然你也可以在BaseFragment当中把布局渲染回来设置这两项属性。</li>
 </ol>
 <ol>
 <li><p>google 推荐不要用构造器传参，因为内存重启的时候，系统为你恢复fragment的时候不会调用你带参数的构造器，这样你的参数就会是null，调用参数的地方会是空指针。所以google推荐你使用setArguments来传值。</p>
 </li>
 <li><p>当你在一个跟布局为Linearlayout的Activity中add fragment的时候，fragment 不会覆盖全屏，只会根据LinearLayout的布局方向，add到最后或者右边（LinearLayout不具备层叠效果）；这时如果一定要add fragment的话，可以给LinearLayout外层套一个FrameLayout，fragment add 其上。</p>
-</li>
-</ol>
-<ol>
-<li><p>响应back键：如果能在Activity中获取到fragment 实例，那再简单不过了。说一种能不能都行的方法： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">@Override public void onBackPressed() &#123;</div><div class="line">  Fragment fragmentById = getFragmentManager().findFragmentById(android.R.id.content);</div><div class="line">  if (!fragmentById.isRemoving()) &#123;</div><div class="line">    fragmentById.getFragmentManager().popBackStack();</div><div class="line">    return;</div><div class="line">  &#125;</div><div class="line">  super.onBackPressed();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>是什么fragment 对应强转就行了。</p>
-</li>
-<li><p>fragment 移除的话直接在fragment 中调用   getFragmentManager().popBackStack();即可，而且这个方法有重载满足移除fragment的不同需求，可以点进去看下，这里不赘述。并且，fragmentManager还提供了一个fragment在stack发生变化时回调的方法</p>
-<pre><code>getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
- @Override public void onBackStackChanged() {
-
- }
-});
-</code></pre></li>
-</ol>
-<ol>
-<li>当Activity执行完onSaveInstanceState()的时候在执行事务add、replace 的时候会报“IllegalStateException: Can not perform this action after onSaveInstanceState” 异常，此时可以调用commitAllowingStateLoss(),相对于Crash来说，不保存fragment事务状态还算好点…. 当然能够避免这种逻辑是最好的。</li>
-</ol>
-<h4 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h4><ol>
-<li><a href="http://www.jianshu.com/p/d9143a92ad94" target="_blank" rel="external">Fragment 全解析系列</a></li>
-</ol>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/05/16/Fragment使用心得/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1178,8 +1159,7 @@
 
       
         
-          
-            <h1 id="开发路上的捡到的芝麻和西瓜"><a href="#开发路上的捡到的芝麻和西瓜" class="headerlink" title="开发路上的捡到的芝麻和西瓜"></a>开发路上的捡到的芝麻和西瓜</h1><p>记录在开发过程中捡到的资源，有芝麻也有西瓜，敝帚自珍，好高骛远也要脚踏实地。</p>
+          <h1 id="开发路上的捡到的芝麻和西瓜"><a href="#开发路上的捡到的芝麻和西瓜" class="headerlink" title="开发路上的捡到的芝麻和西瓜"></a>开发路上的捡到的芝麻和西瓜</h1><p>记录在开发过程中捡到的资源，有芝麻也有西瓜，敝帚自珍，好高骛远也要脚踏实地。</p>
 <p>这些资料网上一百度一大堆，我只是把经常看的搜集一起方便访问。</p>
 <p>希望能为各位大佬的宝贵青春+1s～</p>
 <h3 id="在线工具："><a href="#在线工具：" class="headerlink" title="在线工具："></a>在线工具：</h3><ol>
@@ -1191,110 +1171,14 @@
 <li>图片优化平台：<a href="https://tinypng.com/" target="_blank" rel="external">tinypng</a></li>
 <li>md 风格的颜色、icon和设计样式：<a href="https://www.materialpalette.com/" target="_blank" rel="external">materialpalette</a></li>
 <li>通过快速配置（ide、compile lib等）能生成工程代码：<a href="http://androidkickstartr.com/" target="_blank" rel="external">androidkickstartr</a></li>
-<li>图片格式在线转换<a href="http://www.atool.org/imgextconvert.php" target="_blank" rel="external">aTool</a></li>
-</ol>
-<h3 id="各位大佬的资源集锦"><a href="#各位大佬的资源集锦" class="headerlink" title="各位大佬的资源集锦"></a>各位大佬的资源集锦</h3><ol>
-<li>Trinea:<ul>
-<li><a href="https://github.com/Trinea/android-open-project" target="_blank" rel="external">Trinea 大神的开源集锦</a></li>
-<li><a href="http://www.trinea.cn/" target="_blank" rel="external">Trinea 的个人主页</a></li>
-</ul>
-</li>
-</ol>
-<ol>
-<li>介绍Android开发工具和周边插件：<a href="http://mobdevgroup.com/tools/android" target="_blank" rel="external">MobDevGrop</a></li>
-<li>全平台各种开发包（Studio、sdk、plugin等）：<a href="http://www.androiddevtools.cn/" target="_blank" rel="external">AndroidDevTools</a></li>
-<li>号称github上<a href="https://github.com/Freelander/Android_Data/blob/master/Android-Librarys-Top-100.md" target="_blank" rel="external">Android 前100star流行库统计</a></li>
-</ol>
-<h3 id="各种使用指南"><a href="#各种使用指南" class="headerlink" title="各种使用指南"></a>各种使用指南</h3><ol>
-<li><a href="http://www.embeddedlinux.org.cn/androidapi/" target="_blank" rel="external">Android中文API合集（java 中文api手册Android版)</a></li>
-<li><a href="http://wiki.jikexueyuan.com/project/material-design/" target="_blank" rel="external">material design 中文版</a></li>
-</ol>
-<h3 id="学习笔记系列"><a href="#学习笔记系列" class="headerlink" title="学习笔记系列"></a>学习笔记系列</h3><ol>
-<li><a href="https://github.com/brianway/java-learning" target="_blank" rel="external">java SE +Web</a></li>
-</ol>
-<h3 id="Android-相关的资讯网站"><a href="#Android-相关的资讯网站" class="headerlink" title="Android 相关的资讯网站"></a>Android 相关的资讯网站</h3><h6 id="google-中文官网-emsp-emsp-Android-中文"><a href="#google-中文官网-emsp-emsp-Android-中文" class="headerlink" title="google 中文官网&emsp;&emsp;    Android 中文"></a><a href="https://developers.google.cn/" target="_blank" rel="external">google 中文官网</a>&emsp;&emsp;    <a href="https://developers.google.cn/" target="_blank" rel="external">Android 中文</a></h6><ol>
-<li><a href="http://www.apkbus.com/" target="_blank" rel="external">安卓巴士</a></li>
-<li><a href="http://www.xueandroid.com/" target="_blank" rel="external">wan android( hongyang 偶像)</a></li>
-<li><a href="http://www.androidblog.cn/" target="_blank" rel="external">Android 博客周刊</a></li>
-<li><a href="http://androidcat.com/?step=1&amp;view=CatFragment" target="_blank" rel="external">Android cat</a></li>
-<li><a href="http://gank.io/" target="_blank" rel="external">gank IO (daimajia)</a><ul>
-<li><a href="http://waibao.io/" target="_blank" rel="external">waibao.io</a></li>
-</ul>
-</li>
-<li><a href="http://www.jikedaohang.com/" target="_blank" rel="external">极客导航</a></li>
-<li><a href="https://kymjs.com/" target="_blank" rel="external">张涛开源实验室</a></li>
-<li><a href="http://stormzhang.com/" target="_blank" rel="external">Stormzhang的博客</a></li>
-<li><a href="http://www.gcssloop.com/" target="_blank" rel="external">gcssloop 的博客(自定义View系列）</a></li>
-<li><a href="https://drakeet.me/" target="_blank" rel="external">darkeet 的博客</a></li>
-<li><a href="http://www.devtf.cn/" target="_blank" rel="external">开发技术前线</a></li>
-<li><a href="http://droidyue.com/" target="_blank" rel="external">技术小黑屋</a></li>
-<li><a href="https://race604.com/" target="_blank" rel="external">jlog 的博客</a></li>
-<li><a href="http://www.jcodecraeer.com/" target="_blank" rel="external">泡在网上的日子</a></li>
-<li><a href="http://www.oschina.net/" target="_blank" rel="external">开源中国</a></li>
-<li><a href="http://www.cnblogs.com/over140/" target="_blank" rel="external">农民伯伯博客</a></li>
-<li><a href="http://blog.chengyunfeng.com/?p=1020" target="_blank" rel="external">云在千峰Android 2016 开发资料</a></li>
-<li><a href="http://gityuan.com/" target="_blank" rel="external">gityuan</a></li>
-<li><a href="http://blog.csdn.net/guolin_blog?viewmode=contents" target="_blank" rel="external">郭霖的博客</a></li>
-<li><a href="http://blog.csdn.net/jdsjlzx" target="_blank" rel="external">一叶飘舟</a></li>
-<li><a href="http://hukai.me/" target="_blank" rel="external">胡凯的博客</a></li>
-<li><a href="http://blog.csdn.net/qibin0506/" target="_blank" rel="external">亓斌的博客</a></li>
-<li><a href="http://www.liaoxuefeng.com/" target="_blank" rel="external">廖雪峰的网站</a></li>
-<li>ali <a href="https://yq.aliyun.com/" target="_blank" rel="external">云栖社区</a></li>
-<li><a href="http://www.lcode.org/" target="_blank" rel="external">江清清的技术专栏</a></li>
-<li><a href="http://p.codekk.com/" target="_blank" rel="external">codekk</a></li>
-<li><a href="http://blog.csdn.net/lfdfhl" target="_blank" rel="external">谷歌的小弟的博客</a></li>
-</ol>
-<p>向这些帅逼博主们致敬！</p>
-<h3 id="UI控件系列"><a href="#UI控件系列" class="headerlink" title="UI控件系列"></a>UI控件系列</h3><ol>
-<li><a href="https://github.com/dalong982242260/LoopRotarySwitch" target="_blank" rel="external">3D旋转木马View</a></li>
-</ol>
-<h3 id="WebView"><a href="#WebView" class="headerlink" title="WebView"></a>WebView</h3><ol>
-<li><a href="https://juejin.im/entry/57b586d35bbb50006303c7e7" target="_blank" rel="external">掘金上一位分享关于webview 值得注意的地方，很全面</a></li>
-<li><a href="http://blog.csdn.net/zhangcanyan/article/details/51509601" target="_blank" rel="external">webView 编程的那些坑</a></li>
-<li><a href="https://www.kymjs.com/code/2015/05/03/01/" target="_blank" rel="external">张涛 深入理解webViw</a></li>
-</ol>
-<h3 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h3><ol>
-<li><a href="http://www.jianshu.com/p/0fcf6a1a13fe" target="_blank" rel="external">Android 流行库混淆</a></li>
-<li><a href="http://www.jianshu.com/p/f3455ecaa56e" target="_blank" rel="external">混淆模板</a></li>
-</ol>
-<h3 id="文章推荐"><a href="#文章推荐" class="headerlink" title="文章推荐"></a>文章推荐</h3><p>觉得写的含金量很足的文章</p>
-<ol>
-<li><a href="http://blog.csdn.net/mybeta/article/details/39993449" target="_blank" rel="external">View的三个构造器</a></li>
-<li><a href="http://blog.csdn.net/lfdfhl/article/details/51324275" target="_blank" rel="external">自定义View</a></li>
-<li><a href="http://blog.csdn.net/lmj623565791/article/details/45022631/" target="_blank" rel="external">自定义属性</a></li>
-</ol>
-<h3 id="Icon"><a href="#Icon" class="headerlink" title="Icon"></a>Icon</h3><ol>
-<li><a href="https://github.com/mikepenz/Android-Iconics" target="_blank" rel="external">各式各样的icons 和 svg</a></li>
-<li><a href="http://www.iconfont.cn/" target="_blank" rel="external">阿里矢量图库</a></li>
-<li><a href="http://www.58pic.com/" target="_blank" rel="external">千图网(网页UI模块)</a></li>
-</ol>
-<h3 id="Chrome-工具"><a href="#Chrome-工具" class="headerlink" title="Chrome 工具"></a>Chrome 工具</h3><ol>
-<li>chrome 在线工具箱：<a href="http://tool.lu/" target="_blank" rel="external">tool.lu</a></li>
-</ol>
-<h3 id="Gradle-下载地址"><a href="#Gradle-下载地址" class="headerlink" title="Gradle 下载地址"></a>Gradle 下载地址</h3><ol>
-<li><a href="https://services.gradle.org/distributions/" target="_blank" rel="external">gradle 手动下载地址</a><ul>
-<li><a href="The android gradle plugin version 2.4.0-alpha7 is too old">gradle 官网</a></li>
-<li><a href="http://www.jianshu.com/p/8ffbe6d9cd67" target="_blank" rel="external">详细请看这篇帖子</a></li>
-</ul>
-</li>
-<li><a href="https://developer.android.com/studio/releases/gradle-plugin.html#" target="_blank" rel="external">关于gradle plug 的官方文档</a></li>
-</ol>
-<h3 id="JS"><a href="#JS" class="headerlink" title="JS"></a>JS</h3><ol>
-<li><a href="http://es6.ruanyifeng.com/" target="_blank" rel="external">阮一峰老师的ES6入门</a></li>
-<li><a href="http://www.w3school.com.cn/" target="_blank" rel="external">w3cSchool</a></li>
-<li><a href="https://yq.aliyun.com/articles/30980" target="_blank" rel="external">云栖社区的JS从零入门</a></li>
-<li><a href="http://www.runoob.com/js/js-tutorial.html" target="_blank" rel="external">JS菜鸟教程</a></li>
-</ol>
-<h3 id="React-Native"><a href="#React-Native" class="headerlink" title="React Native"></a>React Native</h3><ol>
-<li><a href="http://reactnative.cn/" target="_blank" rel="external">RN中文网</a></li>
-<li><a href="http://reactnative.cn/" target="_blank" rel="external">极客学院的RN官方文档</a></li>
-<li><a href="https://github.com/facebook/react-native" target="_blank" rel="external">RN github主页</a></li>
-<li><a href="http://facebook.github.io/react-native/" target="_blank" rel="external">facebook RN 主页</a></li>
-<li><a href="http://www.lcode.org/react-native/" target="_blank" rel="external">江清清的RN专栏</a></li>
-<li><a href="http://bbs.reactnative.cn/" target="_blank" rel="external">RN中文社区</a></li>
-</ol>
-
-          
+<li>图片格式在线转换<a href="http://www.atool.org/imgextconvert.php" target="_blank" rel="external">aTool</a>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/05/15/Android开发资源汇总/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
