@@ -331,151 +331,16 @@
 
       
         
-          
-            <p>先上一张图，理解下集合之间的相互关系：<br><img src="img/java_collections.jpeg" alt="图片"><br>其中：实线代表继承；虚线代表实现接口。</p>
+          <p>先上一张图，理解下集合之间的相互关系：<br><img src="img/java_collections.jpeg" alt="图片"><br>其中：实线代表继承；虚线代表实现接口。</p>
 <p>下面这张表示Map的：<br><img src="img/java_maps.jpeg" alt="图片"><br>c：class<br>i：interface<br>继承和实现关系简单明了。</p>
-<p>通常我们常用的也就ArrayList和HashMap，不过还是需要了解下各个集合特点和底层实现的～</p>
-<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><p>特点：</p>
-<ol>
-<li><p>有序，有角标</p>
-</li>
-<li><p>支持for循环和增强for循环</p>
-</li>
-<li>允许重复的元素</li>
-</ol>
-<h4 id="实现类"><a href="#实现类" class="headerlink" title="实现类"></a>实现类</h4><ol>
-<li><p>ArrayList：</p>
-<ul>
-<li>底层是数组</li>
-<li>查找效率，增加和删除慢，因为这两个操作原理上是数组的拷贝</li>
-<li>非线程安全</li>
-<li><p>实现了Serializable，可被用作组件间传递。</p>
-<ul>
-<li>Serializable 使用了反射来序列化对象，会生成很多对象，尽管只是个标记接口，操作方便，但是性能不如parcelable，推荐使用parcelabe，用插件生成模版代码即可。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>LinkedList：</p>
-<ul>
-<li>底层是链表</li>
-<li>增加和删除效率，查找慢<ul>
-<li>基本元素是Node，Node封装三个内容：元素值，前一个node和后一个node； 所以理论上一个元素只能知道它前一个和后一个的元素，所以查找起来比较慢。具体如下：get方法中先是判断索引是否越界，然后return了下面的方法<img src="img/linkedlist_get.png" alt="图片">可见，先是获   取集合size，然后size右移一位，就是集合中间位置，判断小于这个位置就从前往后遍历，大于这个位置就从后往前遍历，遍历元素必然消耗性能。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-<ol>
-<li>Vector：<ul>
-<li>线程安全的Arraylist</li>
-<li>stack: 先进后出</li>
-</ul>
-</li>
-</ol>
-<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>特点：</p>
-<ol>
-<li>无序</li>
-<li>不允许元素重复</li>
-<li>null值</li>
-</ol>
-<h4 id="实现类-1"><a href="#实现类-1" class="headerlink" title="实现类"></a>实现类</h4><ol>
-<li>HashSet<ul>
-<li>无序</li>
-<li>为保证无序，如果元素是对象，必须覆写hashcode和equals方法，equals方法实际上是为了提高效率的，真正区别两个元素不同的还是hashcode方法</li>
-</ul>
-</li>
-<li>LinkedHashSet<ul>
-<li>HashMap的子类</li>
-<li>非线程安全</li>
-<li>有序，遍历先得到是先插入的</li>
-<li>涉及到链表，插入速度快，查询速度慢</li>
-</ul>
-</li>
-<li>TreeSet</li>
-</ol>
-<ul>
-<li>有序</li>
-<li>非线程安全</li>
-<li>对象需要实现Comparable接口或者用需要传入Comparator的构造器<h3 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h3>特点：</li>
-</ul>
-<ol>
-<li>无序</li>
-<li>键值对</li>
-<li>null值</li>
-<li>遍历需要keySet或者EntrySet<ul>
-<li>推荐使用EntrySet，keySet实际上get到了key作为一个集合，然后在根据key 获取Value，实际上是遍历了两次，而EntrySet本身就封装了键和值，遍历一次即可</li>
-</ul>
-</li>
-</ol>
-<h4 id="实现类-2"><a href="#实现类-2" class="headerlink" title="实现类"></a>实现类</h4><ol>
-<li>HashMap<ul>
-<li>非线程安全</li>
-<li>key不能重复，但是value可以重复；key的实现就是HashSet；</li>
-<li>允许null的键或值；</li>
-<li>重复key put的时候后者value会覆盖</li>
-<li>遍历时获取数据的是随机的</li>
-<li>根据键的hashCode来存储数据</li>
-</ul>
-</li>
-<li>TreeMap<ul>
-<li>有序</li>
-<li>Key是TreeSet，但是Value必须实现Comparable接口，或者用需要传入Comparator的那个构造器。</li>
-</ul>
-</li>
-<li>HashTable<ul>
-<li>线程安全的HashMap</li>
-<li>不允许null的键或值；</li>
-</ul>
-</li>
-<li>LinkedHashMap<ul>
-<li>有序，遍历的时候先得到的是先插入的</li>
-<li></li>
-</ul>
-</li>
-<li>Properties<ul>
-<li>key和value都是String类型，一半用来读取配置文件。</li>
-</ul>
-</li>
-</ol>
-<h3 id="使用Tips"><a href="#使用Tips" class="headerlink" title="使用Tips"></a>使用Tips</h3><ol>
-<li>当元素个数固定，用 Array ，因为 Array 效率是最高的。 </li>
-<li>声明集合的时候尽量声明接口，不要实现类，方便以后修改，面向接口编程，java多态体现嘛</li>
-<li>声明集合的时候给出集合大小会提高集合效率，Map不知道大小就默认写16（默认容量大小）<ul>
-<li>HashMap中默认大小是16，默认负载因子是0.75，当满足结合size&gt;默认大小*负载因子的时候，集合就会以2倍形式扩容。所以，当数据量大的时候，不断的扩容和遍历集合都是相当耗费资源的</li>
-</ul>
-<ol>
-<li>Array.AsList 返回的ArrayList 不是我们平时用的ArrayList，而是ArrayList的一个顶级内部类，（没有add方法总之用起来会报错),用的时候New一个新的Arraylist，把AsList返回的集合放在新new的ArrayList构造器中重构一下，用new出来ArrayList即可</li>
-<li>不要在for循环中remove元素，用迭代器来remove</li>
-</ol>
-</li>
-</ol>
-<h3 id="Android-中的数据结构"><a href="#Android-中的数据结构" class="headerlink" title="Android 中的数据结构"></a>Android 中的数据结构</h3><ol>
-<li><p>SparseArray ：</p>
-<ul>
-<li>key为int类型的HashMap 可以用这个代替，Android 对其进行了优化</li>
-<li>有序的，put数据的时候是根据二分查找法，按照key值大小拍好序的，当然遍历时候取数据也是一样的</li>
-<li>虽说SparseArray性能比较好，但是由于其添加、查找、删除数据都需要先进行一次二分查找，所以在数据量大的情况下性能并不明显，所以数据量少的时候建议用这个代替HashMap</li>
-<li>有KeyAt（int index）和Value（int index）Api用于查找相应index的key或者value。</li>
-</ul>
-</li>
-<li><p>ArrayMap：</p>
-<ul>
-<li>无序，所谓无序其实是指它put的顺序和get的顺序不一样；它put的时候是按着key的hash值来一次put的，一定程度上也是有序吧… </li>
-<li>内部是使用两个数组进行数据存储，一个数组记录key的hash值，另外一个数组记录Value值</li>
-<li>跟SparseArray 类似，不过key可以是任意类型</li>
-<li>数据量小的时候适用</li>
-<li>ArrayMap提供了数组收缩的功能，在clear或remove后，会重新收缩数组</li>
-<li>扩容的时候会copy数组，并不是new 一个新的（HashMap会new一个新的）</li>
-</ul>
-</li>
-<li>LongSparseArray:当key为long类型时候的SparseArray<ul>
-<li>数据量小的时候适用</li>
-</ul>
-</li>
-</ol>
-
-          
+<p>通常我们常用的也就ArrayList和HashMap，不过还是需要了解下各个集合特点和底层实现的～<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/06/07/Java-集合总结/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
