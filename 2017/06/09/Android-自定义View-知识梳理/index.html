@@ -90,16 +90,16 @@
 
 
 
-<meta name="description" content="Attention 新建fragment 布局默认是透明的，能够透传点击事件，也就是说能够点到下层布局上的控件。通常我都是在xml加上一个背景色（当然不要加透明通道），一个clickable=true（或者让fragment拦截事件，都行），这样它会拦截所有事件。当然你也可以在BaseFragment当中把布局渲染回来设置这两项属性。   google 推荐不要用构造器传参，因为内存重启的时候，系">
+<meta name="description" content="做东西三思而后行，当我们需要自定义控件来实现需求的时候，不能大脑一片空白。 通常来说有个基本流程：  构造器 自定义属性 onMeasure onLayout onDraw 事件分发">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Fragment">
-<meta property="og:url" content="http://yoursite.com/2017/05/16/Fragment使用心得/index.html">
+<meta property="og:title" content="Android 自定义View 知识梳理">
+<meta property="og:url" content="http://yoursite.com/2017/06/09/Android-自定义View-知识梳理/index.html">
 <meta property="og:site_name" content="杨晓彬">
-<meta property="og:description" content="Attention 新建fragment 布局默认是透明的，能够透传点击事件，也就是说能够点到下层布局上的控件。通常我都是在xml加上一个背景色（当然不要加透明通道），一个clickable=true（或者让fragment拦截事件，都行），这样它会拦截所有事件。当然你也可以在BaseFragment当中把布局渲染回来设置这两项属性。   google 推荐不要用构造器传参，因为内存重启的时候，系">
-<meta property="og:updated_time" content="2017-06-08T15:08:33.000Z">
+<meta property="og:description" content="做东西三思而后行，当我们需要自定义控件来实现需求的时候，不能大脑一片空白。 通常来说有个基本流程：  构造器 自定义属性 onMeasure onLayout onDraw 事件分发">
+<meta property="og:updated_time" content="2017-06-09T07:53:34.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Fragment">
-<meta name="twitter:description" content="Attention 新建fragment 布局默认是透明的，能够透传点击事件，也就是说能够点到下层布局上的控件。通常我都是在xml加上一个背景色（当然不要加透明通道），一个clickable=true（或者让fragment拦截事件，都行），这样它会拦截所有事件。当然你也可以在BaseFragment当中把布局渲染回来设置这两项属性。   google 推荐不要用构造器传参，因为内存重启的时候，系">
+<meta name="twitter:title" content="Android 自定义View 知识梳理">
+<meta name="twitter:description" content="做东西三思而后行，当我们需要自定义控件来实现需求的时候，不能大脑一片空白。 通常来说有个基本流程：  构造器 自定义属性 onMeasure onLayout onDraw 事件分发">
 
 
 
@@ -127,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/05/16/Fragment使用心得/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/06/09/Android-自定义View-知识梳理/"/>
 
 
 
 
 
-  <title>Fragment | 杨晓彬</title>
+  <title>Android 自定义View 知识梳理 | 杨晓彬</title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -263,7 +263,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/16/Fragment使用心得/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/09/Android-自定义View-知识梳理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="杨晓彬">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Fragment</h1>
+          <h1 class="post-title" itemprop="name headline">Android 自定义View 知识梳理</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-16T14:31:10+08:00">
-                2017-05-16
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-09T09:41:10+08:00">
+                2017-06-09
               </time>
             
 
@@ -327,32 +327,30 @@
       
 
       
-        <h3 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h3><ol>
-<li>新建fragment 布局默认是透明的，能够透传点击事件，也就是说能够点到下层布局上的控件。通常我都是在xml加上一个背景色（当然不要加透明通道），一个clickable=true（或者让fragment拦截事件，都行），这样它会拦截所有事件。当然你也可以在BaseFragment当中把布局渲染回来设置这两项属性。</li>
-</ol>
+        <p>做东西三思而后行，当我们需要自定义控件来实现需求的时候，不能大脑一片空白。</p>
+<p>通常来说有个基本流程：</p>
 <ol>
-<li><p>google 推荐不要用构造器传参，因为内存重启的时候，系统为你恢复fragment的时候不会调用你带参数的构造器，这样你的参数就会是null，调用参数的地方会是空指针。所以google推荐你使用setArguments来传值。</p>
-</li>
-<li><p>当你在一个跟布局为Linearlayout的Activity中add fragment的时候，fragment 不会覆盖全屏，只会根据LinearLayout的布局方向，add到最后或者右边（LinearLayout不具备层叠效果）；这时如果一定要add fragment的话，可以给LinearLayout外层套一个FrameLayout，fragment add 其上。</p>
+<li>构造器</li>
+<li>自定义属性</li>
+<li>onMeasure</li>
+<li>onLayout</li>
+<li>onDraw</li>
+<li>事件分发</li>
+</ol>
 <a id="more"></a>
-</li>
-<li><p>响应back键：如果能在Activity中获取到fragment 实例，那再简单不过了。说一种能不能都行的方法： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">@Override public void onBackPressed() &#123;</div><div class="line">  Fragment fragmentById = getFragmentManager().findFragmentById(android.R.id.content);</div><div class="line">  if (!fragmentById.isRemoving()) &#123;</div><div class="line">    fragmentById.getFragmentManager().popBackStack();</div><div class="line">    return;</div><div class="line">  &#125;</div><div class="line">  super.onBackPressed();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>是什么fragment 对应强转就行了。</p>
-</li>
-<li><p>fragment 移除的话直接在fragment 中调用   getFragmentManager().popBackStack();即可，而且这个方法有重载满足移除fragment的不同需求，可以点进去看下，这里不赘述。并且，fragmentManager还提供了一个fragment在stack发生变化时回调的方法</p>
-<pre><code>getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
- @Override public void onBackStackChanged() {
-
- }
-});
-</code></pre></li>
+<h3 id="工具："><a href="#工具：" class="headerlink" title="工具："></a>工具：</h3><ol>
+<li>Configuration</li>
+<li>ViewConfiguration</li>
+<li>Scroller</li>
+<li>VelocityTracker</li>
+<li>ViewDragHelper</li>
+<li>GestureDector</li>
 </ol>
-<ol>
-<li>当Activity执行完onSaveInstanceState()的时候在执行事务add、replace 的时候会报“IllegalStateException: Can not perform this action after onSaveInstanceState” 异常，此时可以调用commitAllowingStateLoss(),相对于Crash来说，不保存fragment事务状态还算好点…. 当然能够避免这种逻辑是最好的。</li>
+<h3 id="自定义View"><a href="#自定义View" class="headerlink" title="自定义View"></a>自定义View</h3><ol>
+<li>不需要onLayout</li>
 </ol>
-<h4 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h4><ol>
-<li><a href="http://www.jianshu.com/p/d9143a92ad94" target="_blank" rel="external">Fragment 全解析系列</a></li>
+<h3 id="自定义ViewGroup"><a href="#自定义ViewGroup" class="headerlink" title="自定义ViewGroup"></a>自定义ViewGroup</h3><ol>
+<li>抽象类，必须覆写onLayout</li>
 </ol>
 
       
@@ -390,8 +388,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/05/15/Android开发资源汇总/" rel="next" title="Android开发资源汇总">
-                <i class="fa fa-chevron-left"></i> Android开发资源汇总
+              <a href="/2017/06/08/Android知识汇总/" rel="next" title="Android知识汇总">
+                <i class="fa fa-chevron-left"></i> Android知识汇总
               </a>
             
           </div>
@@ -399,10 +397,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/05/28/读原生SwipeRefreshLayout源码/" rel="prev" title="读原生SwipeRefreshLayout源码">
-                读原生SwipeRefreshLayout源码 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -524,7 +518,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Attention"><span class="nav-number">1.</span> <span class="nav-text">Attention</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#推荐阅读"><span class="nav-number">1.1.</span> <span class="nav-text">推荐阅读</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#工具："><span class="nav-number">1.</span> <span class="nav-text">工具：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义View"><span class="nav-number">2.</span> <span class="nav-text">自定义View</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义ViewGroup"><span class="nav-number">3.</span> <span class="nav-text">自定义ViewGroup</span></a></li></ol></div>
             
 
           </div>
