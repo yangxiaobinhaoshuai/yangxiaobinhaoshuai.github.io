@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/06/12/Dagger2-入门/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
-<meta property="og:updated_time" content="2017-06-12T06:10:29.000Z">
+<meta property="og:updated_time" content="2017-06-12T06:32:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dagger2 入门">
 <meta name="twitter:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
@@ -337,13 +337,12 @@
 <li>首页：dagger是一个全静态的，编译时依赖注解framework，适用于java和Android平台。由Square创建，现在google在维护。</li>
 <li>用户手册：dagger能够代替那些工厂类的实例化注入代码，能够让你专注逻辑，声明注入对象，满足条件即可，起到app瘦身作用。通过javax包下的inject注解，让每个类都更加容易测试；使用dagger也更加容易能写出高可复用，高可拓展的模块，更佳解耦，更加容易测试。</li>
 <li>使用<ul>
-<li>@Inject标记你需要dagger为你创造实例的构造器前，dagger会自动获取需要的参数值，然后调用构造器。</li>
-<li>dagger也可以实例化成员对象，</li>
-<li>如果一个类只有被@Inject标记的成员而没有@Inject标记的构造器，dagger是不会为你创造实例的，也就是说如果你想通过@Inject标记成员来实例化成员，必须在成员的构造器也加上@Inject，即便构造器是默认的无参构造器，也要加上@Inject才行。</li>
+<li>@Inject标记你需要dagger为你创造实例的构造器前，dagger会自动获取需要的参数值，然后调用构造器创建实例，当构造器中有参数的时候，dagger会自动帮你创建参数的实例。</li>
+<li>如果一个类如果没有被@Inject标记的构造器，dagger是不会为你创造实例的，也就是说如果你想通过@Inject标记成员来实例化成员，必须在成员的构造器也加上@Inject，即便构造器是默认的无参构造器，也要加上@Inject才行。</li>
 <li>但是@Inject有三种情况是无效的<ul>
-<li>接口不行</li>
-<li>三方的类不行</li>
-<li>构造器参数中的对象也必须满足能够用@Inject来依赖注入的（三方类我们无法保证其构造器中参数对象是否满足条件）</li>
+<li>接口不行，dagger没有办法帮你寻找制定实现类。</li>
+<li>三方的类不行了，我们无法操作三方类的构造器为其添加@Inject注解</li>
+<li>Configurable objects must be configured!（没理解了这句… ）</li>
 </ul>
 </li>
 <li>对于不能使用@Inject的情况，需要使用一个带有@Provides标记的方法来提供依赖，该方法返回一个需要被注入的类型对象。</li>
@@ -351,12 +350,12 @@
 <li>通常来说，带有@Provides标记的方法名都命名为provide前缀，而包含这个方法的类都带有Module的后缀</li>
 </ul>
 </li>
-<li>构建对象图<ul>
-<li>被@Inject和@Provides标记的类，和他们的依赖关系，实际上都存储在对象图中。</li>
-<li>我们需要把标记的构造器和成员关联起来，需要一个编译生成的类来完成，这个类需要一个被@Component标记的接口，这个接口编译成一个类，会以Dagger+被@component标记的接口名来命名，通过它的build（）方法获取被@Component标记的接口的实例，但是先要通过该接口的builder来设置module，然后调用build获取接口实例，通过实例调用方法。</li>
+<li>构建对象依赖图<ul>
+<li>被@Inject和@Provides标记的类，和他们的依赖关系，实际上都存储一个叫对象图的概念中，个人理解这个对象图就是component。</li>
+<li>存储变量与类实例依赖关系的纽带是“component”，所以我们要在调用注入实例的类中实例化component，通过component.create()获取component实例。</li>
+<li>获取实例可以把一个module作为参数传给component，component会寻找module中是否有被@Provides标记的方法，有的话就拿来用做实例返回，没有的话就去寻找被@Inject标记的对应构造器，调用构造器来获取实例。</li>
+<li>如果传入module的构造器为默认构造器，或者被@Provides标记的方法都是static的，构建component就不需要通过builder来传入module实例，直接调用Component.create（）即可。</li>
 <li>如果component是内部接口的话，编译生成的相应接口命名会以外部类开头</li>
-<li>任何空构造器的module都可以省略先通过builder设置module，dagger会自动创建实例。</li>
-<li>任何module中的@Provides的方法如果都是static的，实现类就根本不需要实例来调用了，此时dagger会自动生成一个create（）方法来获取注入实例。</li>
 </ul>
 </li>
 </ol>
