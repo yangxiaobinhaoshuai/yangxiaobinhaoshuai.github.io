@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/06/12/Dagger2-入门/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
-<meta property="og:updated_time" content="2017-06-12T05:33:12.000Z">
+<meta property="og:updated_time" content="2017-06-12T06:10:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dagger2 入门">
 <meta name="twitter:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
@@ -335,8 +335,8 @@
 </ol>
 <h3 id="文档翻译"><a href="#文档翻译" class="headerlink" title="文档翻译"></a>文档翻译</h3><ol>
 <li>首页：dagger是一个全静态的，编译时依赖注解framework，适用于java和Android平台。由Square创建，现在google在维护。</li>
-<li>用户手册：dagger能够代替那些工厂类的实例化注入代码，能够让你专注逻辑，声明注入对象，满足条件即可，起到app瘦身作用。&emsp;&emsp;通过javax包下的inject注解，让每个类都更加容易测试；使用dagger也更加容易能写出高可复用，高可拓展的模块，更佳解耦，更加容易测试。</li>
-<li>coffee maker：dagger 实例化对象构造器，而且满足其依赖条件。使用<ul>
+<li>用户手册：dagger能够代替那些工厂类的实例化注入代码，能够让你专注逻辑，声明注入对象，满足条件即可，起到app瘦身作用。通过javax包下的inject注解，让每个类都更加容易测试；使用dagger也更加容易能写出高可复用，高可拓展的模块，更佳解耦，更加容易测试。</li>
+<li>使用<ul>
 <li>@Inject标记你需要dagger为你创造实例的构造器前，dagger会自动获取需要的参数值，然后调用构造器。</li>
 <li>dagger也可以实例化成员对象，</li>
 <li>如果一个类只有被@Inject标记的成员而没有@Inject标记的构造器，dagger是不会为你创造实例的，也就是说如果你想通过@Inject标记成员来实例化成员，必须在成员的构造器也加上@Inject，即便构造器是默认的无参构造器，也要加上@Inject才行。</li>
