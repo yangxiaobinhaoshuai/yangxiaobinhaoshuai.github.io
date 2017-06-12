@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/06/12/Dagger2-入门/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
-<meta property="og:updated_time" content="2017-06-12T02:43:56.000Z">
+<meta property="og:updated_time" content="2017-06-12T03:52:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dagger2 入门">
 <meta name="twitter:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
@@ -333,6 +333,23 @@
 <li><a href="https://google.github.io/dagger/" target="_blank" rel="external">dagger2文档</a></li>
 <li><a href="https://google.github.io/dagger/api/latest/" target="_blank" rel="external">Api文档</a></li>
 </ol>
+<h3 id="文档翻译"><a href="#文档翻译" class="headerlink" title="文档翻译"></a>文档翻译</h3><ol>
+<li>首页：dagger是一个全静态的，编译时依赖注解framework，适用于java和Android平台。由Square创建，现在google在维护。</li>
+<li>用户手册：dagger能够代替那些工厂类的实例化注入代码，能够让你专注逻辑，声明注入对象，满足条件即可，起到app瘦身作用。&emsp;&emsp;通过javax包下的inject注解，让每个类都更加容易测试；使用dagger也更加容易能写出高可复用，高可拓展的模块，更佳解耦，更加容易测试。</li>
+<li>coffee maker：dagger 实例化对象构造器，而且满足其依赖条件。使用<ul>
+<li>@Inject标记你需要dagger为你创造实例的构造器前，dagger会自动获取需要的参数值，然后调用构造器。</li>
+<li>dagger也可以实例化成员对象，</li>
+<li>如果一个类只有被@Inject标记的成员而没有@Inject标记的构造器，dagger是不会为你创造实例的，也就是说如果你想通过@Inject标记成员来实例化成员，必须在成员的构造器也加上@Inject，即便构造器是默认的无参构造器，也要加上@Inject才行。</li>
+<li>但是@Inject有三种情况是无效的<ul>
+<li>接口不行</li>
+<li>三方的类不行</li>
+<li>构造器参数中的对象也必须满足能够用@Inject来依赖注入的（三方类我们无法保证其构造器中参数对象是否满足条件）</li>
+</ul>
+</li>
+<li>对于不能使用@Inject的情况，需要使用一个带有@Provides标记的方法来提供依赖，该方法返回一个需要被注入的类型对象。</li>
+</ul>
+</li>
+</ol>
 <h3 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h3><p>gradle plugin version &gt;=2.2</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">compile &apos;com.google.dagger:dagger:2.x&apos;</div><div class="line"> annotationProcessor &apos;com.google.dagger:dagger-compiler:2.x&apos;</div></pre></td></tr></table></figure>
 <p>如果你想使用dagger.android 包下的类的话<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">compile &apos;com.google.dagger:dagger-android:2.x&apos;</div><div class="line">compile &apos;com.google.dagger:dagger-android-support:2.x&apos; // if you use the support libraries</div><div class="line">annotationProcessor &apos;com.google.dagger:dagger-android-processor:2.x&apos;</div></pre></td></tr></table></figure></p>
@@ -512,7 +529,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#文档"><span class="nav-number">1.</span> <span class="nav-text">文档</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Installation"><span class="nav-number"></span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sample"><span class="nav-number"></span> <span class="nav-text">Sample</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体使用"><span class="nav-number"></span> <span class="nav-text">具体使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解"><span class="nav-number"></span> <span class="nav-text">注解</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#文档"><span class="nav-number">1.</span> <span class="nav-text">文档</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档翻译"><span class="nav-number"></span> <span class="nav-text">文档翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Installation"><span class="nav-number"></span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sample"><span class="nav-number"></span> <span class="nav-text">Sample</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体使用"><span class="nav-number"></span> <span class="nav-text">具体使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解"><span class="nav-number"></span> <span class="nav-text">注解</span></a></div>
             
 
           </div>
