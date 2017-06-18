@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/06/12/Dagger2-入门/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
-<meta property="og:updated_time" content="2017-06-12T06:32:17.000Z">
+<meta property="og:updated_time" content="2017-06-12T06:55:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dagger2 入门">
 <meta name="twitter:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
@@ -358,6 +358,11 @@
 <li>如果component是内部接口的话，编译生成的相应接口命名会以外部类开头</li>
 </ul>
 </li>
+<li>component 范围<ul>
+<li>限于Android 应用内存，对于通过dagger大量实例化对象也是耗费资源的。比如，大量的实例单例对象，我们应该通过@Scope来控制公用对象来节省内存开销。</li>
+<li>被@Singleton修饰的component，是单例的，多线程共享同一资源。</li>
+</ul>
+</li>
 </ol>
 <h3 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h3><p>gradle plugin version &gt;=2.2</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">compile &apos;com.google.dagger:dagger:2.x&apos;</div><div class="line"> annotationProcessor &apos;com.google.dagger:dagger-compiler:2.x&apos;</div></pre></td></tr></table></figure>
@@ -371,6 +376,11 @@
 <h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p><a href="https://asce1885.gitbooks.io/android-rd-senior-advanced/content/androidzhong_de_yi_lai_zhu_ru_ff1a_dagger_han_shu_ku_de_shi_yong_ff08_er_ff09.html" target="_blank" rel="external">dagger2函数库使用</a></p>
 <h3 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h3><ol>
 <li>@Inject：</li>
+<li>@Moduel</li>
+<li>@Component</li>
+<li>@Reusable</li>
+<li>@CanReleaseReferences</li>
+<li>@Scope</li>
 </ol>
 
       
