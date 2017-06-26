@@ -264,6 +264,124 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/26/Android-异常/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="杨晓彬">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xinzhizhu.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="杨晓彬">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/06/26/Android-异常/" itemprop="url">Android 异常</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-26T17:07:35+08:00">
+                2017-06-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h3><ol>
+<li>Unable to load class ‘org.gradle.api.internal.component.Usage’<ul>
+<li><a href="http://www.yaphetzhao.com/?p=145" target="_blank" rel="external">解决办法:修改distributionUrl参数的gradle版本号</a></li>
+</ul>
+</li>
+<li></li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/25/一个人的战争/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1337,121 +1455,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/28/读原生SwipeRefreshLayout源码/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="杨晓彬">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xinzhizhu.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="杨晓彬">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/28/读原生SwipeRefreshLayout源码/" itemprop="url">读原生SwipeRefreshLayout源码</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-28T13:32:05+08:00">
-                2017-05-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="官方对该控件的描述"><a href="#官方对该控件的描述" class="headerlink" title="官方对该控件的描述"></a>官方对该控件的描述</h1><p><img src="img/description_swiperefreshlayout.png" alt="图片"></p>
-<p>&emsp;&emsp;“当你通过垂方向的滑动手势来刷新内容的时候，你可以用这个控件，实例化这个控件的activity 需要添加一个（注意是add，增量逻辑） OnRefreshListenner 来监听刷新事件的完毕；当刷新手势结束后，控件会通知每一个add 过的监听，在监听回调方法中你可以刷新内容，当然如果内容刷新后，需要结束刷新动画，你需要调用swipeRefreshLayout.setRefreshing(false)来结束刷新动画，如果activity 想展示加载进度，可以调用swipeRefreshlayout.setRefreshing(true),如果想禁用滑动手势触发刷新动画，就调用setEnable（false）“<br>&emsp;&emsp;该控件需作为要刷新的控件的直接父View，且有且只能有一个子View，会拦截手势，而且会强行自适应这个子View。这个控件不提供任何对事件的操控操作，作为代替，当手势触发的时候一个菜单项会被提供来刷新内容“</p>
-<p><img src="img/swiperefreshlayout2.png" alt="图片"></p>
-<p>不用看那头两个见名知意的成员属性。这个viewgroup继承了nestedScrollingParent和child ，记得去年我在hongyang公共号看到一篇<a href="https://mp.weixin.qq.com/s?__biz=MzAxMTI4MTkwNQ==&amp;mid=2650820888&amp;idx=1&amp;sn=69dcea117cc1f18f09363f32d8f2c400&amp;scene=42#wechat_redirect" target="_blank" rel="external">文章</a>，我先去回顾下…(我偶像还是值得信懒的😁)</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1501,7 +1504,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
