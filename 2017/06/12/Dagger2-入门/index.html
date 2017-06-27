@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/06/12/Dagger2-入门/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
-<meta property="og:updated_time" content="2017-06-21T07:32:21.000Z">
+<meta property="og:updated_time" content="2017-06-27T15:14:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dagger2 入门">
 <meta name="twitter:description" content="Dagger2:&amp;emsp;Google fork square的项目。&amp;emsp;&amp;emsp;搜了很多Dagger2的相关材料，发现少得可怜，一直说深入发掘下Dagger2的用法。纸上得来终觉浅，绝知此事要躬行。&amp;emsp;&amp;emsp;google对项目的描述：”一个Android 和Java的依赖注入器， dagger2 提升为一个编译时依赖注入工具，完全放弃的反射带来的性能上的缺陷，并通过删">
@@ -374,14 +374,9 @@
 <li><a href="https://github.com/square/dagger/tree/master/examples/simple" target="_blank" rel="external">jake wharton大神的sample</a></li>
 </ol>
 <h3 id="具体使用"><a href="#具体使用" class="headerlink" title="具体使用"></a>具体使用</h3><p><a href="https://asce1885.gitbooks.io/android-rd-senior-advanced/content/androidzhong_de_yi_lai_zhu_ru_ff1a_dagger_han_shu_ku_de_shi_yong_ff08_er_ff09.html" target="_blank" rel="external">dagger2函数库使用</a></p>
-<h3 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h3><ol>
-<li>@Inject：</li>
-<li>@Moduel</li>
-<li>@Component</li>
-<li>@Reusable</li>
-<li>@CanReleaseReferences</li>
-<li>@Scope</li>
-</ol>
+<h3 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h3><h4 id="Inject"><a href="#Inject" class="headerlink" title="@Inject"></a>@Inject</h4><p>标记声明的构造器，dagger会自动寻找component中有没有@provides标记的方法提供实例，如果没有就去寻找声明对象的构造器是否被@Inject标记，如果是，就实例化这个对象，当然如果有参数的化，dagger会先实例参数，传入参数。</p>
+<h4 id="Component"><a href="#Component" class="headerlink" title="@Component"></a>@Component</h4><p>个人理解就是所有实例化都是由component的实例来完成的，所以我需要在程序开始的时候构建component实例，让dagger完成实例化。有的需要传入module来构建component，但是都需要传入需要在哪个类中实例化的对象（this).</p>
+<h4 id="Module"><a href="#Module" class="headerlink" title="@Module"></a>@Module</h4><p>当三方库我们没有办法用@Inject来标记对象构造器的时候，或者一些接口，没有构造器，dagger提供了通过@provides标记方法返回实例，来弥补@Inject的不足，但是@provides标记的方法都要在@Module的class中。</p>
 <h3 id="关于Dagger2的干货文章"><a href="#关于Dagger2的干货文章" class="headerlink" title="关于Dagger2的干货文章"></a>关于Dagger2的干货文章</h3><ol>
 <li><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0620/8097.html" target="_blank" rel="external">关于dagger2的文章收录</a></li>
 </ol>
@@ -555,7 +550,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#文档"><span class="nav-number">1.</span> <span class="nav-text">文档</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档翻译"><span class="nav-number"></span> <span class="nav-text">文档翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Installation"><span class="nav-number"></span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sample"><span class="nav-number"></span> <span class="nav-text">Sample</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体使用"><span class="nav-number"></span> <span class="nav-text">具体使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解"><span class="nav-number"></span> <span class="nav-text">注解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于Dagger2的干货文章"><span class="nav-number"></span> <span class="nav-text">关于Dagger2的干货文章</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#文档"><span class="nav-number">1.</span> <span class="nav-text">文档</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文档翻译"><span class="nav-number"></span> <span class="nav-text">文档翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Installation"><span class="nav-number"></span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sample"><span class="nav-number"></span> <span class="nav-text">Sample</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体使用"><span class="nav-number"></span> <span class="nav-text">具体使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解"><span class="nav-number"></span> <span class="nav-text">注解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Inject"><span class="nav-number">1.</span> <span class="nav-text">@Inject</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Component"><span class="nav-number">2.</span> <span class="nav-text">@Component</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Module"><span class="nav-number">3.</span> <span class="nav-text">@Module</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于Dagger2的干货文章"><span class="nav-number"></span> <span class="nav-text">关于Dagger2的干货文章</span></a></div>
             
 
           </div>
