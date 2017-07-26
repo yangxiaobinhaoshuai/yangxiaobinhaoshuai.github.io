@@ -90,16 +90,16 @@
 
 
 
-<meta name="description" content="Gradle Unable to load class ‘org.gradle.api.internal.component.Usage’ 解决办法:修改distributionUrl参数的gradle版本号   Gradle sync failed: Another ‘refresh project’ task is currently running for the project  解决办法">
+<meta name="description" content="Gradle Unable to load class ‘org.gradle.api.internal.component.Usage’   解决办法:修改distributionUrl参数的gradle版本号   Gradle sync failed: Another ‘refresh project’ task is currently running for the project  解决">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android 问题">
 <meta property="og:url" content="http://yoursite.com/2017/06/26/Android-异常/index.html">
 <meta property="og:site_name" content="杨晓彬">
-<meta property="og:description" content="Gradle Unable to load class ‘org.gradle.api.internal.component.Usage’ 解决办法:修改distributionUrl参数的gradle版本号   Gradle sync failed: Another ‘refresh project’ task is currently running for the project  解决办法">
-<meta property="og:updated_time" content="2017-06-30T05:27:22.000Z">
+<meta property="og:description" content="Gradle Unable to load class ‘org.gradle.api.internal.component.Usage’   解决办法:修改distributionUrl参数的gradle版本号   Gradle sync failed: Another ‘refresh project’ task is currently running for the project  解决">
+<meta property="og:updated_time" content="2017-07-26T09:14:54.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android 问题">
-<meta name="twitter:description" content="Gradle Unable to load class ‘org.gradle.api.internal.component.Usage’ 解决办法:修改distributionUrl参数的gradle版本号   Gradle sync failed: Another ‘refresh project’ task is currently running for the project  解决办法">
+<meta name="twitter:description" content="Gradle Unable to load class ‘org.gradle.api.internal.component.Usage’   解决办法:修改distributionUrl参数的gradle版本号   Gradle sync failed: Another ‘refresh project’ task is currently running for the project  解决">
 
 
 
@@ -328,10 +328,12 @@
 
       
         <h3 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h3><ol>
-<li>Unable to load class ‘org.gradle.api.internal.component.Usage’<ul>
+<li>Unable to load class ‘org.gradle.api.internal.component.Usage’</li>
+</ol>
+<ul>
 <li><a href="http://www.yaphetzhao.com/?p=145" target="_blank" rel="external">解决办法:修改distributionUrl参数的gradle版本号</a></li>
 </ul>
-</li>
+<ol>
 <li><p>Gradle sync failed: Another ‘refresh project’ task is currently running for the project</p>
 <ul>
 <li><a href="https://stackoverflow.com/questions/21066598/android-studio-0-4-2-gradle-project-sync-failed-error" target="_blank" rel="external">解决办法：File -&gt; Invalidate caches / Restart</a></li>
@@ -345,11 +347,25 @@
 <li></li>
 </ol>
 <h3 id="UI问题"><a href="#UI问题" class="headerlink" title="UI问题"></a>UI问题</h3><ol>
-<li><a href="http://www.cnblogs.com/yejiurui/archive/2013/01/02/2841945.html" target="_blank" rel="external">edt 去焦点</a>  android:focusable=”true”<br>android:focusableInTouchMode=”true” 这两个属性添加到edt父控件就行。</li>
+<li><p><a href="http://www.cnblogs.com/yejiurui/archive/2013/01/02/2841945.html" target="_blank" rel="external">edt 去焦点</a>  android:focusable=”true”<br>android:focusableInTouchMode=”true” 这两个属性添加到edt父控件就行。</p>
+</li>
+<li><p><a href="">Glide 加载图片：java.lang.IllegalArgumentException: You must not call setTag() on a view Glide is targeting</a></p>
+<ol>
+<li><p>网上有说Glide为了不使图片错乱，已经用了SetTag方法，我们调用setTag最好在Glide加载图片代码之后，或者调用SetTag（int resId）这个方法</p>
+</li>
+<li><p><a href="https://stackoverflow.com/questions/34833627/error-you-must-not-call-settag-on-a-view-glide-is-targeting-when-use-glide/35096552#35096552" target="_blank" rel="external">官网维护人员提供的解决办法</a></p>
+<p>​</p>
+<p>​</p>
+</li>
+</ol>
+</li>
 </ol>
 <h3 id="65535"><a href="#65535" class="headerlink" title="65535"></a>65535</h3><ol>
 <li><a href="https://my.oschina.net/u/3174448/blog/881614" target="_blank" rel="external">65535 原因</a></li>
 <li></li>
+</ol>
+<h3 id="gradle-三方依赖重复问题"><a href="#gradle-三方依赖重复问题" class="headerlink" title="gradle 三方依赖重复问题"></a>gradle 三方依赖重复问题</h3><ol>
+<li><a href="http://www.jianshu.com/p/0581af7f27e4" target="_blank" rel="external">rxjava1和rxjava2</a></li>
 </ol>
 
       
@@ -517,7 +533,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradle"><span class="nav-number">1.</span> <span class="nav-text">Gradle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UI问题"><span class="nav-number">2.</span> <span class="nav-text">UI问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#65535"><span class="nav-number">3.</span> <span class="nav-text">65535</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Gradle"><span class="nav-number">1.</span> <span class="nav-text">Gradle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UI问题"><span class="nav-number">2.</span> <span class="nav-text">UI问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#65535"><span class="nav-number">3.</span> <span class="nav-text">65535</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gradle-三方依赖重复问题"><span class="nav-number">4.</span> <span class="nav-text">gradle 三方依赖重复问题</span></a></li></ol></div>
             
 
           </div>
