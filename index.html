@@ -406,6 +406,286 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/17/关于65535的问题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="杨晓彬">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xinzhizhu.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="杨晓彬">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/17/关于65535的问题/" itemprop="url">关于65535的问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-17T20:13:54+08:00">
+                2018-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h5 id="避免64官方文档"><a href="#避免64官方文档" class="headerlink" title="避免64官方文档"></a><a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">避免64官方文档</a></h5><h5 id="Android-的瓶颈"><a href="#Android-的瓶颈" class="headerlink" title="Android 的瓶颈"></a>Android 的瓶颈</h5><ol>
+<li>在android 源码中搜索 报错关键字，Too many field references: 131000; max is 65536. 等即可。  原因大概是dalvik 给method id 分配的大小就是16位，所以上限就是2的16次方，65536，从0开始就是65535.</li>
+<li>65535代表单个dex可调用的引用总数。其实不仅仅是method，feild，class，也有这限制，只不过方法id更容易达到上限而已。</li>
+<li>所以65535问题是无法从根本上解除的，我们只能通过各种手段来规避这个上限，而google给出的手段是<a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">multidex分包</a></li>
+</ol>
+<h5 id="Multidex"><a href="#Multidex" class="headerlink" title="Multidex"></a>Multidex</h5><ol>
+<li>minSDK5.0之前<ol>
+<li>dalvik 模式：Android使用dalvik来运行应用。<ol>
+<li>JIT编译：热点代码会被转化成本地机器码来提高运行效率</li>
+</ol>
+</li>
+<li>运行在api21 以下，Android studio 会停用InstantRun</li>
+<li>需要compile 分包执行库</li>
+<li>应用配置：<ol>
+<li>build.gradle android节点—&gt; defaultConfig节点—&gt; multiDexEnabled true 开启multidex</li>
+<li>extends MultiDexApplication ，记得注册Applicaton<ol>
+<li>如果没法继承 MultiDexApplication， 覆写 attachBaseContext 调用MultiDex.install(this)</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>minSDK5.0之后<ol>
+<li>art 模式：采用应用安装就变成本地机器码<ol>
+<li>优点：运行更快</li>
+<li>缺点：安装慢，apk体积更加10%～20%</li>
+</ol>
+</li>
+<li>Android 已经支持了APK加载多个dex文件，不需要分包执行库</li>
+<li>在应用安装的时候会执行预编译，将多个dex编译成单个odex</li>
+<li>调试的时候，InstantRun 会自动进行分包，但是Release 的时候还是要手动分包，因为InstatnRun 只用于Debug 模式。</li>
+<li>应用配置：<ol>
+<li>build.gradle android节点—&gt; defaultConfig节点—&gt; multiDexEnabled true 开启multidex</li>
+</ol>
+</li>
+<li>Google 官方支持的MultiDex jar包 从api 21 就在build tools 里了</li>
+</ol>
+</li>
+</ol>
+<h5 id="避免64k措施"><a href="#避免64k措施" class="headerlink" title="避免64k措施"></a>避免64k措施</h5><ol>
+<li>不要为了几个方法而依赖庞大体积的库</li>
+<li>proguard 启用代码压缩</li>
+</ol>
+<h5 id="MultiDex-局限性"><a href="#MultiDex-局限性" class="headerlink" title="MultiDex 局限性"></a>MultiDex 局限性</h5><ol>
+<li><p>如果辅助Dex过大，可能导致应用启动后ANR。 解决办法：混淆。</p>
+</li>
+<li><p>启动报错，在低版本上会发生。解决办法也是压缩代码。</p>
+</li>
+<li><p>OOM，低版本和高版本都可能发生。</p>
+</li>
+<li><p>NoClassDefFoundError，代码路径可见性低的时候，比如动态加载，或者依赖复杂的时候，或者调用JNI，这些情况这些类可能被分到其他Dex，主dex启动的时候会报错。</p>
+<ol>
+<li><p>解决办法：手动添加到主Dex必需项</p>
+<ol>
+<li><p>MultiDexKeepFile</p>
+<ol>
+<li><p>可以手动创建一个multidex-config.txt文件 然后编辑</p>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">com/example/MyClass.class</div><div class="line">com/example/MyOtherClass.class</div></pre></td></tr></table></figure>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">android &#123;</div><div class="line">    buildTypes &#123;</div><div class="line">        release &#123;</div><div class="line">            multiDexKeepFile file &apos;multidex-config.txt&apos;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>这里注意txt 的相对路径，以上用户txt是和build.gradle在同一级目录下才可以的</p>
+</li>
+</ol>
+</li>
+<li><p>MultiDexKeepProguard</p>
+<ol>
+<li><p>与proguard 格式一样。</p>
+</li>
+<li><p>手动创建 multiDexKeepProguard.txt ，使用proguard 语法编辑</p>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-keep class com.example.MyClass</div><div class="line">-keep class com.example.MyClassToo</div></pre></td></tr></table></figure>
+</li>
+<li><p>如果想指定包下所有类都在主Dex</p>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-keep class com.example.** &#123; *; &#125; // All classes in the com.example package</div></pre></td></tr></table></figure>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">android &#123;</div><div class="line">    buildTypes &#123;</div><div class="line">        release &#123;</div><div class="line">            multiDexKeepProguard &apos;multidex-config.pro&apos;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>还是注意txt 的目录层级问题</p>
+</li>
+</ol>
+</li>
+<li><p>使用了multidex后，gradle 在build 的时候的步骤是</p>
+<ol>
+<li>根据manifest 和build.gradle 的依赖关系  把四大组件和support包等关键信息写在manifest_keep.txt  在build目录下</li>
+<li>根据proguard 规则来优化，将没有用到的类删除，生成ComponentClasses.jar   </li>
+<li>扫描 componentClasses.jar 创建maindexlist.txt 里面包含main dex 所有所需的类。 <ol>
+<li>这里列出的类并不全</li>
+<li>这个文件是可编辑的，如果要添加必要类，直接按语法添加即可<ol>
+<li>如果类并不存在，gradle 会忽略</li>
+<li>如果类重复，则只取其中一个</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>应用安装后第一次启动会非常慢，android 会用DexOpt 生成odex ，这一步比较耗时，而非安装后第一次启动，只需加载odex 这个速度很快</p>
+</li>
+<li><h5 id="这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’"><a href="#这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’" class="headerlink" title="这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)"></a>这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)</h5></li>
+<li><p>​</p>
+<p>​</p>
+<p>​</p>
+<p>​</p>
+</li>
+</ol>
+<h5 id="优化开发建议"><a href="#优化开发建议" class="headerlink" title="优化开发建议"></a>优化开发建议</h5><ol>
+<li>multiDex 会增加build 时间，因为build过程会决定哪些类在主dex 中，要移除哪些类。</li>
+<li>通过配置productFlavors 配置两个minSDK 来减少调试的时候的时间<ol>
+<li>api 21 以下<ol>
+<li>为了适配更多的机型</li>
+</ol>
+</li>
+<li>api 21 以上<ol>
+<li>因为api21 以上的ART 模式会更快的生成Dex文件</li>
+<li>执行pre-dexing ，将每个应用模块和每个依赖项编译成单个dex</li>
+<li>将每个dex加入apk，且不做修改，即不混淆，因为minifyEnable为false</li>
+<li>模块的dex 不会执行合并，避免了确定主dex哪些类而耗费时间</li>
+<li>增量构建，只有修改过的dex会被重新编译。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h5 id="DexOptions"><a href="#DexOptions" class="headerlink" title="DexOptions"></a>DexOptions</h5><ol>
+<li>–multi-dex：多 dex 打包的开关。</li>
+<li>（可选）–main-dex-list=<file>：参数是一个类列表的文件，在该文件中的类会被打包在第一个 dex 中。</file></li>
+<li>（可选）–minimal-main-dex：只有在–main-dex-list 文件中指定的类被打包在第一个 dex，其余的都在第二个 dex 文件中。</li>
+<li>（可选）–set-max-idx-number： 可以用于设置 dx 打包时每个 dex 最大的方法数</li>
+<li>​</li>
+</ol>
+<h5 id="Dex-加载"><a href="#Dex-加载" class="headerlink" title="Dex 加载"></a>Dex 加载</h5><ol>
+<li>Android 系统应用启动的时候只加载主Dex，其他dex 需要在应用启动后动态加载安装。</li>
+<li>MultiDexApplication 启动—&gt; MultiDex  install  —&gt; install SecondDexes —&gt;support lib install —&gt; expandeFileArray —&gt; makeDexElements—&gt; DexPathList—&gt; loadDexFile</li>
+<li>冷启动容易触发ANR： <ol>
+<li>解压apk</li>
+<li>加载主dex</li>
+<li>反射加载其他dex<ol>
+<li>异步加载其他dex</li>
+<li>人工干预dex拆分，使每一个dex都在合理范围内<ol>
+<li>通过gradle 中定义一个task 来干预dex产生</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h5 id="Dex-解决问题"><a href="#Dex-解决问题" class="headerlink" title="Dex 解决问题"></a>Dex 解决问题</h5><ol>
+<li>能正常分包打出多个dex</li>
+<li>可以指定每个dex 大小</li>
+<li>可以加载多个dex</li>
+<li>可以指定主dex 包含哪些类</li>
+</ol>
+<h5 id="关于65535-问题的帖子"><a href="#关于65535-问题的帖子" class="headerlink" title="关于65535 问题的帖子"></a>关于65535 问题的帖子</h5><ol>
+<li><a href="https://juejin.im/entry/5705b2712e958a0057a5f735" target="_blank" rel="external">multidex 分包详细流程</a></li>
+<li><a href="https://segmentfault.com/a/1190000004053072" target="_blank" rel="external">腾讯分包记</a></li>
+<li><a href="https://tech.meituan.com/mt-android-auto-split-dex.html" target="_blank" rel="external">美团分包记</a></li>
+<li><a href="http://www.methodscount.com/" target="_blank" rel="external">在线查知名开源库的方法数</a></li>
+<li><a href="https://github.com/KeepSafe/dexcount-gradle-plugin" target="_blank" rel="external">gradle 插件统计项目方法数</a></li>
+<li>​</li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/07/OneApm-Http-JS-Error-Test/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1379,128 +1659,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/04/书籍推荐/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="杨晓彬">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/xinzhizhu.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="杨晓彬">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/04/书籍推荐/" itemprop="url">书籍推荐</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-04T11:03:40+08:00">
-                2017-06-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>&emsp;&emsp;腹有诗书气自华。<br>&emsp;&emsp;个人觉得在平时的每一天每一刻都是决定你将来达到高度的关键时机，当你积蓄够力量，自然而然就能抓住机会，所以，不要吝啬，不要拖延，拿起书来吧！</p>
-<p>&emsp;&emsp;我选择书籍的时候，听很多人说在知乎上搜一下就好，知乎上推荐的大多都很中肯，不过难免有些人言过其实，需要有辨识能力撒～</p>
-<h3 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h3><ol>
-<li><a href="https://www.gitbook.com/book/quanke/think-in-java/details" target="_blank" rel="external">《java编程思想》gitbook 电子版</a></li>
-<li>《Effective Java》(标题既是内容总结- - 简单点，熟记目录即可，当然书籍内容是具体通过各个实例来分析的）</li>
-</ol>
-<h3 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h3><ol>
-<li>《Android群英传》（Android基础）</li>
-<li>《Android开发艺术探索》（更偏向SDK源码解读）</li>
-</ol>
-<p>我觉得那些教用Eclipse的入门书籍就不要看了吧…  而且进来Android版本变化很大，有些还在教适配3.0之前也有点没必要了</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1550,7 +1708,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
