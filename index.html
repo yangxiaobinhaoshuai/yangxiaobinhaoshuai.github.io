@@ -583,8 +583,6 @@
 <li><h5 id="这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’"><a href="#这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’" class="headerlink" title="这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)"></a>这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)</h5></li>
 <li><p>​</p>
 <p>​</p>
-<p>​</p>
-<p>​</p>
 </li>
 </ol>
 <h5 id="优化开发建议"><a href="#优化开发建议" class="headerlink" title="优化开发建议"></a>优化开发建议</h5><ol>
@@ -629,6 +627,11 @@
 </ol>
 </li>
 </ol>
+<h5 id="MultidDex-原理"><a href="#MultidDex-原理" class="headerlink" title="MultidDex 原理"></a>MultidDex 原理</h5><ol>
+<li>multidex 会在application 初始化之后，检查版本是否支持multidex ，classes2.dex 是否需要安装</li>
+<li>如果需要安装则会从apk中解压出classes2.dex 将其拷贝到应用沙盒目录下</li>
+<li>通过反射将classes2.dex 注入到当前的classloader中</li>
+</ol>
 <h5 id="Dex-解决问题"><a href="#Dex-解决问题" class="headerlink" title="Dex 解决问题"></a>Dex 解决问题</h5><ol>
 <li>能正常分包打出多个dex</li>
 <li>可以指定每个dex 大小</li>
@@ -641,6 +644,8 @@
 <li><a href="https://tech.meituan.com/mt-android-auto-split-dex.html" target="_blank" rel="external">美团分包记</a></li>
 <li><a href="http://www.methodscount.com/" target="_blank" rel="external">在线查知名开源库的方法数</a></li>
 <li><a href="https://github.com/KeepSafe/dexcount-gradle-plugin" target="_blank" rel="external">gradle 插件统计项目方法数</a></li>
+<li><a href="http://allenfeng.com/2016/11/17/principle-analysis-on-multidex/" target="_blank" rel="external">Multidex 源码解析</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/24305296" target="_blank" rel="external">中二病的multidex 原理解析</a></li>
 <li>​</li>
 </ol>
 

@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/01/17/关于65535的问题/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="避免64官方文档Android 的瓶颈 在android 源码中搜索 报错关键字，Too many field references: 131000; max is 65536. 等即可。  原因大概是dalvik 给method id 分配的大小就是16位，所以上限就是2的16次方，65536，从0开始就是65535. 65535代表单个dex可调用的引用总数。其实不仅仅是method，feil">
-<meta property="og:updated_time" content="2018-01-18T07:22:55.173Z">
+<meta property="og:updated_time" content="2018-01-21T15:04:29.833Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="关于65535的问题">
 <meta name="twitter:description" content="避免64官方文档Android 的瓶颈 在android 源码中搜索 报错关键字，Too many field references: 131000; max is 65536. 等即可。  原因大概是dalvik 给method id 分配的大小就是16位，所以上限就是2的16次方，65536，从0开始就是65535. 65535代表单个dex可调用的引用总数。其实不仅仅是method，feil">
@@ -436,8 +436,6 @@
 <li><h5 id="这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’"><a href="#这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’" class="headerlink" title="这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)"></a>这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)</h5></li>
 <li><p>​</p>
 <p>​</p>
-<p>​</p>
-<p>​</p>
 </li>
 </ol>
 <h5 id="优化开发建议"><a href="#优化开发建议" class="headerlink" title="优化开发建议"></a>优化开发建议</h5><ol>
@@ -482,6 +480,11 @@
 </ol>
 </li>
 </ol>
+<h5 id="MultidDex-原理"><a href="#MultidDex-原理" class="headerlink" title="MultidDex 原理"></a>MultidDex 原理</h5><ol>
+<li>multidex 会在application 初始化之后，检查版本是否支持multidex ，classes2.dex 是否需要安装</li>
+<li>如果需要安装则会从apk中解压出classes2.dex 将其拷贝到应用沙盒目录下</li>
+<li>通过反射将classes2.dex 注入到当前的classloader中</li>
+</ol>
 <h5 id="Dex-解决问题"><a href="#Dex-解决问题" class="headerlink" title="Dex 解决问题"></a>Dex 解决问题</h5><ol>
 <li>能正常分包打出多个dex</li>
 <li>可以指定每个dex 大小</li>
@@ -494,6 +497,8 @@
 <li><a href="https://tech.meituan.com/mt-android-auto-split-dex.html" target="_blank" rel="external">美团分包记</a></li>
 <li><a href="http://www.methodscount.com/" target="_blank" rel="external">在线查知名开源库的方法数</a></li>
 <li><a href="https://github.com/KeepSafe/dexcount-gradle-plugin" target="_blank" rel="external">gradle 插件统计项目方法数</a></li>
+<li><a href="http://allenfeng.com/2016/11/17/principle-analysis-on-multidex/" target="_blank" rel="external">Multidex 源码解析</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/24305296" target="_blank" rel="external">中二病的multidex 原理解析</a></li>
 <li>​</li>
 </ol>
 
@@ -662,7 +667,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#避免64官方文档"><span class="nav-number">1.</span> <span class="nav-text">避免64官方文档</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Android-的瓶颈"><span class="nav-number">2.</span> <span class="nav-text">Android 的瓶颈</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Multidex"><span class="nav-number">3.</span> <span class="nav-text">Multidex</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#避免64k措施"><span class="nav-number">4.</span> <span class="nav-text">避免64k措施</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MultiDex-局限性"><span class="nav-number">5.</span> <span class="nav-text">MultiDex 局限性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’"><span class="nav-number">6.</span> <span class="nav-text">这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#优化开发建议"><span class="nav-number">7.</span> <span class="nav-text">优化开发建议</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DexOptions"><span class="nav-number">8.</span> <span class="nav-text">DexOptions</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dex-加载"><span class="nav-number">9.</span> <span class="nav-text">Dex 加载</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dex-解决问题"><span class="nav-number">10.</span> <span class="nav-text">Dex 解决问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#关于65535-问题的帖子"><span class="nav-number">11.</span> <span class="nav-text">关于65535 问题的帖子</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#避免64官方文档"><span class="nav-number">1.</span> <span class="nav-text">避免64官方文档</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Android-的瓶颈"><span class="nav-number">2.</span> <span class="nav-text">Android 的瓶颈</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Multidex"><span class="nav-number">3.</span> <span class="nav-text">Multidex</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#避免64k措施"><span class="nav-number">4.</span> <span class="nav-text">避免64k措施</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MultiDex-局限性"><span class="nav-number">5.</span> <span class="nav-text">MultiDex 局限性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’"><span class="nav-number">6.</span> <span class="nav-text">这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#优化开发建议"><span class="nav-number">7.</span> <span class="nav-text">优化开发建议</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DexOptions"><span class="nav-number">8.</span> <span class="nav-text">DexOptions</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dex-加载"><span class="nav-number">9.</span> <span class="nav-text">Dex 加载</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MultidDex-原理"><span class="nav-number">10.</span> <span class="nav-text">MultidDex 原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dex-解决问题"><span class="nav-number">11.</span> <span class="nav-text">Dex 解决问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#关于65535-问题的帖子"><span class="nav-number">12.</span> <span class="nav-text">关于65535 问题的帖子</span></a></li></ol></div>
             
 
           </div>
