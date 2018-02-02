@@ -90,16 +90,16 @@
 
 
 
-<meta name="description" content="一个追求整洁的Android开发者">
+<meta name="description" content="Android SDK Build Toolsgoogle 官网的release note   最新version 为27.03    2018.1.25 Introduction官网简介为：Anbroid sdk build tools 是一个构建Android app 时候的必要的组件。 其实也就是Android app 由我们ide中的源码编译成apk 这一系列过程中所需要的构建工具。 你应">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android SDK Build Tools 每个文件功能作用">
 <meta property="og:url" content="http://yoursite.com/2018/01/25/Android-SDK-Build-Tools-每个文件功能作用/index.html">
 <meta property="og:site_name" content="杨晓彬">
-<meta property="og:description" content="一个追求整洁的Android开发者">
-<meta property="og:updated_time" content="2018-01-25T01:30:49.000Z">
+<meta property="og:description" content="Android SDK Build Toolsgoogle 官网的release note   最新version 为27.03    2018.1.25 Introduction官网简介为：Anbroid sdk build tools 是一个构建Android app 时候的必要的组件。 其实也就是Android app 由我们ide中的源码编译成apk 这一系列过程中所需要的构建工具。 你应">
+<meta property="og:updated_time" content="2018-01-25T03:12:59.495Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android SDK Build Tools 每个文件功能作用">
-<meta name="twitter:description" content="一个追求整洁的Android开发者">
+<meta name="twitter:description" content="Android SDK Build Toolsgoogle 官网的release note   最新version 为27.03    2018.1.25 Introduction官网简介为：Anbroid sdk build tools 是一个构建Android app 时候的必要的组件。 其实也就是Android app 由我们ide中的源码编译成apk 这一系列过程中所需要的构建工具。 你应">
 
 
 
@@ -327,7 +327,68 @@
       
 
       
-        
+        <h3 id="Android-SDK-Build-Tools"><a href="#Android-SDK-Build-Tools" class="headerlink" title="Android SDK Build Tools"></a>Android SDK Build Tools</h3><p><a href="https://developer.android.com/studio/releases/build-tools.html" target="_blank" rel="external">google 官网的release note</a>   最新version 为27.03    2018.1.25</p>
+<h4 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h4><p>官网简介为：Anbroid sdk build tools 是一个构建Android app 时候的必要的组件。 其实也就是Android app 由我们ide中的源码编译成apk 这一系列过程中所需要的构建工具。</p>
+<p>你应该使你的sdk build tools 一直保持和 Android sdk manager 同样是最新版。如果你使用了gradle plugin 3.0或更高的版本， 你的项目会默认使用一个特定版本的sdk build tools。 如果你想使用其他版本的sdk build tools，用project 的build.gradle 中的buildToolsVersion 字段来指定其他版本。</p>
+<h4 id="Detail"><a href="#Detail" class="headerlink" title="Detail"></a>Detail</h4><ol>
+<li>aapt<ol>
+<li>编译source 资源为二进制</li>
+</ol>
+</li>
+<li>aapt2<ol>
+<li><a href="https://fucknmb.com/2017/10/31/aapt2%E8%B5%84%E6%BA%90compile%E8%BF%87%E7%A8%8B/" target="_blank" rel="external">aapt2 编译资源</a>    增量编译</li>
+<li>不适合使用aapt2的场景：<ol>
+<li>插件化，和热修复中，需要使用public.xml 的场景</li>
+<li>构建过程，需要动态增删资源的场景，如删除一部分线上不应该出现的资源</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>aarch64-linux-android-ld</li>
+<li>aidl</li>
+<li>apksinger</li>
+<li>arm-linux-androideabi-ld</li>
+<li>bcc_compat</li>
+<li>dexdump<ol>
+<li>dexdump 是android 提供的一个dex文件查看工具，dexdump 会按照类的定义，清晰的列出类的类结构和内容</li>
+</ol>
+</li>
+<li>dx</li>
+<li>I686-linux-android-ld</li>
+<li>Jack and jill 系列</li>
+<li>lib<ol>
+<li>apksigner</li>
+<li>dx.jar</li>
+<li>shrinkedAndroid.jar</li>
+</ol>
+</li>
+<li>lib64<ol>
+<li>libaapt_jni.dylib</li>
+<li>libbcc.dylib</li>
+<li>libbcinfo.dylib</li>
+<li>libc++.dylib</li>
+<li>libclang.dylib</li>
+<li>libLLVM.dylib</li>
+</ol>
+</li>
+<li>llvm-rs-cc</li>
+<li>mainDexClasses</li>
+<li>mainDexClasses.rules</li>
+<li>mainDexClassesoApt.rules</li>
+<li>mipsel-linux-android-ld</li>
+<li>NOTICE.txt</li>
+<li>package.xml</li>
+<li>randerscript<ol>
+<li>略</li>
+</ol>
+</li>
+<li>runtime.properties</li>
+<li>source.properties</li>
+<li>split-select</li>
+<li>X86_64-linux-android-ld</li>
+<li>zipalign</li>
+</ol>
+
       
     </div>
 
@@ -418,8 +479,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/xinzhizhu.png"
@@ -474,6 +544,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Android-SDK-Build-Tools"><span class="nav-number">1.</span> <span class="nav-text">Android SDK Build Tools</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Introduction"><span class="nav-number">1.1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Detail"><span class="nav-number">1.2.</span> <span class="nav-text">Detail</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
