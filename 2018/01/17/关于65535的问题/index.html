@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/01/17/关于65535的问题/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="避免64官方文档Android 的瓶颈 在android 源码中搜索 报错关键字，Too many field references: 131000; max is 65536. 等即可。  原因大概是dalvik 给method id 分配的大小就是16位，所以上限就是2的16次方，65536，从0开始就是65535. 65535代表单个dex可调用的引用总数。其实不仅仅是method，feil">
-<meta property="og:updated_time" content="2018-01-21T15:04:29.833Z">
+<meta property="og:updated_time" content="2018-03-06T11:41:55.853Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="关于65535的问题">
 <meta name="twitter:description" content="避免64官方文档Android 的瓶颈 在android 源码中搜索 报错关键字，Too many field references: 131000; max is 65536. 等即可。  原因大概是dalvik 给method id 分配的大小就是16位，所以上限就是2的16次方，65536，从0开始就是65535. 65535代表单个dex可调用的引用总数。其实不仅仅是method，feil">
@@ -332,6 +332,7 @@
 <li>65535代表单个dex可调用的引用总数。其实不仅仅是method，feild，class，也有这限制，只不过方法id更容易达到上限而已。</li>
 <li>所以65535问题是无法从根本上解除的，我们只能通过各种手段来规避这个上限，而google给出的手段是<a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">multidex分包</a></li>
 </ol>
+<a id="more"></a>
 <h5 id="Multidex"><a href="#Multidex" class="headerlink" title="Multidex"></a>Multidex</h5><ol>
 <li>minSDK5.0之前<ol>
 <li>dalvik 模式：Android使用dalvik来运行应用。<ol>

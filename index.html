@@ -473,70 +473,14 @@
 
       
         
-          
-            <h3 id="Android-SDK-Build-Tools"><a href="#Android-SDK-Build-Tools" class="headerlink" title="Android SDK Build Tools"></a>Android SDK Build Tools</h3><p><a href="https://developer.android.com/studio/releases/build-tools.html" target="_blank" rel="external">google 官网的release note</a>   最新version 为27.03    2018.1.25</p>
-<h4 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h4><p>官网简介为：Anbroid sdk build tools 是一个构建Android app 时候的必要的组件。 其实也就是Android app 由我们ide中的源码编译成apk 这一系列过程中所需要的构建工具。</p>
-<p>你应该使你的sdk build tools 一直保持和 Android sdk manager 同样是最新版。如果你使用了gradle plugin 3.0或更高的版本， 你的项目会默认使用一个特定版本的sdk build tools。 如果你想使用其他版本的sdk build tools，用project 的build.gradle 中的buildToolsVersion 字段来指定其他版本。</p>
-<h4 id="Detail"><a href="#Detail" class="headerlink" title="Detail"></a>Detail</h4><ol>
-<li>aapt<ol>
-<li>编译source 资源为二进制</li>
-</ol>
-</li>
-<li>aapt2<ol>
-<li><a href="https://fucknmb.com/2017/10/31/aapt2%E8%B5%84%E6%BA%90compile%E8%BF%87%E7%A8%8B/" target="_blank" rel="external">aapt2 编译资源</a>    增量编译</li>
-<li>不适合使用aapt2的场景：<ol>
-<li>插件化，和热修复中，需要使用public.xml 的场景</li>
-<li>构建过程，需要动态增删资源的场景，如删除一部分线上不应该出现的资源</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>aarch64-linux-android-ld</li>
-<li>aidl</li>
-<li>apksinger</li>
-<li>arm-linux-androideabi-ld</li>
-<li>bcc_compat</li>
-<li>dexdump<ol>
-<li>dexdump 是android 提供的一个dex文件查看工具，dexdump 会按照类的定义，清晰的列出类的类结构和内容</li>
-</ol>
-</li>
-<li>dx</li>
-<li>I686-linux-android-ld</li>
-<li>Jack and jill 系列</li>
-<li>lib<ol>
-<li>apksigner</li>
-<li>dx.jar</li>
-<li>shrinkedAndroid.jar</li>
-</ol>
-</li>
-<li>lib64<ol>
-<li>libaapt_jni.dylib</li>
-<li>libbcc.dylib</li>
-<li>libbcinfo.dylib</li>
-<li>libc++.dylib</li>
-<li>libclang.dylib</li>
-<li>libLLVM.dylib</li>
-</ol>
-</li>
-<li>llvm-rs-cc</li>
-<li>mainDexClasses</li>
-<li>mainDexClasses.rules</li>
-<li>mainDexClassesoApt.rules</li>
-<li>mipsel-linux-android-ld</li>
-<li>NOTICE.txt</li>
-<li>package.xml</li>
-<li>randerscript<ol>
-<li>略</li>
-</ol>
-</li>
-<li>runtime.properties</li>
-<li>source.properties</li>
-<li>split-select</li>
-<li>X86_64-linux-android-ld</li>
-<li>zipalign</li>
-</ol>
-
-          
+          <h3 id="Android-SDK-Build-Tools"><a href="#Android-SDK-Build-Tools" class="headerlink" title="Android SDK Build Tools"></a>Android SDK Build Tools</h3><p><a href="https://developer.android.com/studio/releases/build-tools.html" target="_blank" rel="external">google 官网的release note</a>   最新version 为27.03    2018.1.25</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/01/25/Android-SDK-Build-Tools-每个文件功能作用/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -645,183 +589,18 @@
 
       
         
-          
-            <h5 id="避免64官方文档"><a href="#避免64官方文档" class="headerlink" title="避免64官方文档"></a><a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">避免64官方文档</a></h5><h5 id="Android-的瓶颈"><a href="#Android-的瓶颈" class="headerlink" title="Android 的瓶颈"></a>Android 的瓶颈</h5><ol>
+          <h5 id="避免64官方文档"><a href="#避免64官方文档" class="headerlink" title="避免64官方文档"></a><a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">避免64官方文档</a></h5><h5 id="Android-的瓶颈"><a href="#Android-的瓶颈" class="headerlink" title="Android 的瓶颈"></a>Android 的瓶颈</h5><ol>
 <li>在android 源码中搜索 报错关键字，Too many field references: 131000; max is 65536. 等即可。  原因大概是dalvik 给method id 分配的大小就是16位，所以上限就是2的16次方，65536，从0开始就是65535.</li>
 <li>65535代表单个dex可调用的引用总数。其实不仅仅是method，feild，class，也有这限制，只不过方法id更容易达到上限而已。</li>
 <li>所以65535问题是无法从根本上解除的，我们只能通过各种手段来规避这个上限，而google给出的手段是<a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">multidex分包</a></li>
 </ol>
-<h5 id="Multidex"><a href="#Multidex" class="headerlink" title="Multidex"></a>Multidex</h5><ol>
-<li>minSDK5.0之前<ol>
-<li>dalvik 模式：Android使用dalvik来运行应用。<ol>
-<li>JIT编译：热点代码会被转化成本地机器码来提高运行效率</li>
-</ol>
-</li>
-<li>运行在api21 以下，Android studio 会停用InstantRun</li>
-<li>需要compile 分包执行库</li>
-<li>应用配置：<ol>
-<li>build.gradle android节点—&gt; defaultConfig节点—&gt; multiDexEnabled true 开启multidex</li>
-<li>extends MultiDexApplication ，记得注册Applicaton<ol>
-<li>如果没法继承 MultiDexApplication， 覆写 attachBaseContext 调用MultiDex.install(this)</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>minSDK5.0之后<ol>
-<li>art 模式：采用应用安装就变成本地机器码<ol>
-<li>优点：运行更快</li>
-<li>缺点：安装慢，apk体积更加10%～20%</li>
-</ol>
-</li>
-<li>Android 已经支持了APK加载多个dex文件，不需要分包执行库</li>
-<li>在应用安装的时候会执行预编译，将多个dex编译成单个odex</li>
-<li>调试的时候，InstantRun 会自动进行分包，但是Release 的时候还是要手动分包，因为InstatnRun 只用于Debug 模式。</li>
-<li>应用配置：<ol>
-<li>build.gradle android节点—&gt; defaultConfig节点—&gt; multiDexEnabled true 开启multidex</li>
-</ol>
-</li>
-<li>Google 官方支持的MultiDex jar包 从api 21 就在build tools 里了</li>
-</ol>
-</li>
-</ol>
-<h5 id="避免64k措施"><a href="#避免64k措施" class="headerlink" title="避免64k措施"></a>避免64k措施</h5><ol>
-<li>不要为了几个方法而依赖庞大体积的库</li>
-<li>proguard 启用代码压缩</li>
-</ol>
-<h5 id="MultiDex-局限性"><a href="#MultiDex-局限性" class="headerlink" title="MultiDex 局限性"></a>MultiDex 局限性</h5><ol>
-<li><p>如果辅助Dex过大，可能导致应用启动后ANR。 解决办法：混淆。</p>
-</li>
-<li><p>启动报错，在低版本上会发生。解决办法也是压缩代码。</p>
-</li>
-<li><p>OOM，低版本和高版本都可能发生。</p>
-</li>
-<li><p>NoClassDefFoundError，代码路径可见性低的时候，比如动态加载，或者依赖复杂的时候，或者调用JNI，这些情况这些类可能被分到其他Dex，主dex启动的时候会报错。</p>
-<ol>
-<li><p>解决办法：手动添加到主Dex必需项</p>
-<ol>
-<li><p>MultiDexKeepFile</p>
-<ol>
-<li><p>可以手动创建一个multidex-config.txt文件 然后编辑</p>
-</li>
-<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">com/example/MyClass.class</div><div class="line">com/example/MyOtherClass.class</div></pre></td></tr></table></figure>
-</li>
-<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">android &#123;</div><div class="line">    buildTypes &#123;</div><div class="line">        release &#123;</div><div class="line">            multiDexKeepFile file &apos;multidex-config.txt&apos;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p>这里注意txt 的相对路径，以上用户txt是和build.gradle在同一级目录下才可以的</p>
-</li>
-</ol>
-</li>
-<li><p>MultiDexKeepProguard</p>
-<ol>
-<li><p>与proguard 格式一样。</p>
-</li>
-<li><p>手动创建 multiDexKeepProguard.txt ，使用proguard 语法编辑</p>
-</li>
-<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-keep class com.example.MyClass</div><div class="line">-keep class com.example.MyClassToo</div></pre></td></tr></table></figure>
-</li>
-<li><p>如果想指定包下所有类都在主Dex</p>
-</li>
-<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-keep class com.example.** &#123; *; &#125; // All classes in the com.example package</div></pre></td></tr></table></figure>
-</li>
-<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">android &#123;</div><div class="line">    buildTypes &#123;</div><div class="line">        release &#123;</div><div class="line">            multiDexKeepProguard &apos;multidex-config.pro&apos;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p>还是注意txt 的目录层级问题</p>
-</li>
-</ol>
-</li>
-<li><p>使用了multidex后，gradle 在build 的时候的步骤是</p>
-<ol>
-<li>根据manifest 和build.gradle 的依赖关系  把四大组件和support包等关键信息写在manifest_keep.txt  在build目录下</li>
-<li>根据proguard 规则来优化，将没有用到的类删除，生成ComponentClasses.jar   </li>
-<li>扫描 componentClasses.jar 创建maindexlist.txt 里面包含main dex 所有所需的类。 <ol>
-<li>这里列出的类并不全</li>
-<li>这个文件是可编辑的，如果要添加必要类，直接按语法添加即可<ol>
-<li>如果类并不存在，gradle 会忽略</li>
-<li>如果类重复，则只取其中一个</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li><p>应用安装后第一次启动会非常慢，android 会用DexOpt 生成odex ，这一步比较耗时，而非安装后第一次启动，只需加载odex 这个速度很快</p>
-</li>
-<li><h5 id="这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’"><a href="#这里注意：-multiDexKeepFile-file-‘multidex-config-txt’，会报错，要用multiDexKeepProguard-file-‘multdex-proguard-pro’" class="headerlink" title="这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)"></a>这里注意： multiDexKeepFile file ‘multidex-config.txt’，会报错，要用multiDexKeepProguard file(‘multdex-proguard.pro’)</h5></li>
-<li><p>​</p>
-<p>​</p>
-</li>
-</ol>
-<h5 id="优化开发建议"><a href="#优化开发建议" class="headerlink" title="优化开发建议"></a>优化开发建议</h5><ol>
-<li>multiDex 会增加build 时间，因为build过程会决定哪些类在主dex 中，要移除哪些类。</li>
-<li>通过配置productFlavors 配置两个minSDK 来减少调试的时候的时间<ol>
-<li>api 21 以下<ol>
-<li>为了适配更多的机型</li>
-</ol>
-</li>
-<li>api 21 以上<ol>
-<li>因为api21 以上的ART 模式会更快的生成Dex文件</li>
-<li>执行pre-dexing ，将每个应用模块和每个依赖项编译成单个dex</li>
-<li>将每个dex加入apk，且不做修改，即不混淆，因为minifyEnable为false</li>
-<li>模块的dex 不会执行合并，避免了确定主dex哪些类而耗费时间</li>
-<li>增量构建，只有修改过的dex会被重新编译。</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<h5 id="DexOptions"><a href="#DexOptions" class="headerlink" title="DexOptions"></a>DexOptions</h5><ol>
-<li>–multi-dex：多 dex 打包的开关。</li>
-<li>（可选）–main-dex-list=<file>：参数是一个类列表的文件，在该文件中的类会被打包在第一个 dex 中。</file></li>
-<li>（可选）–minimal-main-dex：只有在–main-dex-list 文件中指定的类被打包在第一个 dex，其余的都在第二个 dex 文件中。</li>
-<li>（可选）–set-max-idx-number： 可以用于设置 dx 打包时每个 dex 最大的方法数</li>
-<li>​</li>
-</ol>
-<h5 id="Dex-加载"><a href="#Dex-加载" class="headerlink" title="Dex 加载"></a>Dex 加载</h5><ol>
-<li>Android 系统应用启动的时候只加载主Dex，其他dex 需要在应用启动后动态加载安装。</li>
-<li>MultiDexApplication 启动—&gt; MultiDex  install  —&gt; install SecondDexes —&gt;support lib install —&gt; expandeFileArray —&gt; makeDexElements—&gt; DexPathList—&gt; loadDexFile</li>
-<li>冷启动容易触发ANR： <ol>
-<li>解压apk</li>
-<li>加载主dex</li>
-<li>反射加载其他dex<ol>
-<li>异步加载其他dex</li>
-<li>人工干预dex拆分，使每一个dex都在合理范围内<ol>
-<li>通过gradle 中定义一个task 来干预dex产生</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<h5 id="MultidDex-原理"><a href="#MultidDex-原理" class="headerlink" title="MultidDex 原理"></a>MultidDex 原理</h5><ol>
-<li>multidex 会在application 初始化之后，检查版本是否支持multidex ，classes2.dex 是否需要安装</li>
-<li>如果需要安装则会从apk中解压出classes2.dex 将其拷贝到应用沙盒目录下</li>
-<li>通过反射将classes2.dex 注入到当前的classloader中</li>
-</ol>
-<h5 id="Dex-解决问题"><a href="#Dex-解决问题" class="headerlink" title="Dex 解决问题"></a>Dex 解决问题</h5><ol>
-<li>能正常分包打出多个dex</li>
-<li>可以指定每个dex 大小</li>
-<li>可以加载多个dex</li>
-<li>可以指定主dex 包含哪些类</li>
-</ol>
-<h5 id="关于65535-问题的帖子"><a href="#关于65535-问题的帖子" class="headerlink" title="关于65535 问题的帖子"></a>关于65535 问题的帖子</h5><ol>
-<li><a href="https://juejin.im/entry/5705b2712e958a0057a5f735" target="_blank" rel="external">multidex 分包详细流程</a></li>
-<li><a href="https://segmentfault.com/a/1190000004053072" target="_blank" rel="external">腾讯分包记</a></li>
-<li><a href="https://tech.meituan.com/mt-android-auto-split-dex.html" target="_blank" rel="external">美团分包记</a></li>
-<li><a href="http://www.methodscount.com/" target="_blank" rel="external">在线查知名开源库的方法数</a></li>
-<li><a href="https://github.com/KeepSafe/dexcount-gradle-plugin" target="_blank" rel="external">gradle 插件统计项目方法数</a></li>
-<li><a href="http://allenfeng.com/2016/11/17/principle-analysis-on-multidex/" target="_blank" rel="external">Multidex 源码解析</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/24305296" target="_blank" rel="external">中二病的multidex 原理解析</a></li>
-<li>​</li>
-</ol>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/01/17/关于65535的问题/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
