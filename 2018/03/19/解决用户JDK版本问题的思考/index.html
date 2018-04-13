@@ -90,18 +90,18 @@
 
 
 
-<meta name="description" content="&amp;nbsp;&amp;nbsp;在做APM SDK 研发。 &amp;nbsp;&amp;nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。   首先，用户使用我们产品报错： 1java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0 查了下 java class 文件格式的 wiki 百科。 class 文">
+<meta name="description" content="&amp;nbsp;&amp;nbsp;在做APM SDK 研发。 &amp;nbsp;&amp;nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。   首先，用户使用我们产品报错： 1java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0 ~~">
 <meta property="og:type" content="article">
 <meta property="og:title" content="解决用户JDK版本问题的思考">
 <meta property="og:url" content="http://yoursite.com/2018/03/19/解决用户JDK版本问题的思考/index.html">
 <meta property="og:site_name" content="杨晓彬">
-<meta property="og:description" content="&amp;nbsp;&amp;nbsp;在做APM SDK 研发。 &amp;nbsp;&amp;nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。   首先，用户使用我们产品报错： 1java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0 查了下 java class 文件格式的 wiki 百科。 class 文">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;在做APM SDK 研发。 &amp;nbsp;&amp;nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。   首先，用户使用我们产品报错： 1java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0 ~~">
 <meta property="og:image" content="http://yoursite.com/2018/03/19/解决用户JDK版本问题的思考/img/naotou.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/03/19/解决用户JDK版本问题的思考/img/tuofa.jpg">
-<meta property="og:updated_time" content="2018-04-13T06:32:06.231Z">
+<meta property="og:updated_time" content="2018-04-13T06:36:15.524Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解决用户JDK版本问题的思考">
-<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;在做APM SDK 研发。 &amp;nbsp;&amp;nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。   首先，用户使用我们产品报错： 1java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0 查了下 java class 文件格式的 wiki 百科。 class 文">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;在做APM SDK 研发。 &amp;nbsp;&amp;nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。   首先，用户使用我们产品报错： 1java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0 ~~">
 <meta name="twitter:image" content="http://yoursite.com/2018/03/19/解决用户JDK版本问题的思考/img/naotou.jpg">
 
 
@@ -334,6 +334,7 @@
 <p>&nbsp;&nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。</p>
 <p>  首先，用户使用我们产品报错：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0</div></pre></td></tr></table></figure>
+<p>~~ <a id="more"></a></p>
 <p>查了下 java class 文件格式的 <a href="https://en.wikipedia.org/wiki/Java_class_file" target="_blank" rel="external">wiki 百科</a>。</p>
 <p>class 文件前四个字节 magic number：0xCAFEBABE ， 是 java class 文件标识没什么说的，虚拟机就是根据这个来识别class 文件。 接下来四个字节就是 class 文件格式的版本号，前两个字节是次版本 minor version，后两个字节 major version 。问题关键来了。</p>
 <table>

@@ -450,47 +450,18 @@
 
       
         
-          
-            <p>&nbsp;&nbsp;在做APM SDK 研发。</p>
+          <p>&nbsp;&nbsp;在做APM SDK 研发。</p>
 <p>&nbsp;&nbsp;最近解决用户问题遇到 JDK 错误比较多，抽时间研究了下。</p>
 <p>  首先，用户使用我们产品报错：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java.lang.UnsupportedClassVersionError: Unsupported major.minor version 52.0</div></pre></td></tr></table></figure>
-<p>查了下 java class 文件格式的 <a href="https://en.wikipedia.org/wiki/Java_class_file" target="_blank" rel="external">wiki 百科</a>。</p>
-<p>class 文件前四个字节 magic number：0xCAFEBABE ， 是 java class 文件标识没什么说的，虚拟机就是根据这个来识别class 文件。 接下来四个字节就是 class 文件格式的版本号，前两个字节是次版本 minor version，后两个字节 major version 。问题关键来了。</p>
-<table>
-<thead>
-<tr>
-<th>size</th>
-<th>description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>2 bytes</td>
-<td>Minor version number of the class file format being used</td>
-</tr>
-<tr>
-<td>2 bytes</td>
-<td>Major version number of the class file format being used<br><br>Java SE 10 = 54 (0x36 hex)<br><br>Java SE 9 = 53 (0x35 hex)<br><br>Java SE 8 = 52 (0x34 hex)<br><br>Java SE 7 = 51 (0x33 hex)<br><br>Java SE 6 = 50 (0x32 hex)</td>
-</tr>
-</tbody>
-</table>
-<p>&nbsp;&nbsp;&nbsp;果然   <code>major.minor version 52.0</code>    对应  JDK 1.8 ， 所以上述错误就可以描述为：不支持 JDK 1.8 编译出来的 class 文件格式，即本地环境低于1.8。  Java 肯定是高版本 JDK 能兼容低版本 JDK class 文件格式的，1.8 的环境肯定能运行低于1.8环境（1.7、1.6) 编译出来的class 文件，但反之不然。 低环境的 JDK 版本会无法识别高版本 JDK 编译出来的class 文件格式，就会报上述错误。</p>
-<p>&nbsp;&nbsp;因为产品用了Java8的api，所以引导用户升了下 1.8 的JDK。</p>
-<p>  然而，用户反馈了一个新的问题：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">com.android.dx.cf.iface.ParseException: bad class file magic (cafebabe) or version (0034.0000)</div><div class="line">at com.android.dx.cf.direct.DirectClassFile.parse0(DirectClassFile.java:472)</div><div class="line">at com.android.dx.cf.direct.DirectClassFile.parse(DirectClassFile.java:406)</div><div class="line">at com.android.dx.cf.direct.DirectClassFile.parseToInterfacesIfNecessary(DirectClassFile.java:388) </div><div class="line">at com.android.dx.cf.direct.DirectClassFile.getMagic(DirectClassFile.java:251)</div><div class="line">at com.android.dx.command.dexer.Main.processClass(Main.java:704)</div></pre></td></tr></table></figure>
-<p>&nbsp;&nbsp;花时间搜了下问题解决办法，发现大家都是说换成 JDK 1.7 问题就解决了，我刚引导人家把 JDK 升上来好吧。搜到的问题答案都并不知其所以然。不知道问题根本，就更不能对用户进行正确引导，说实话我蛮在意这个问题的:smiley:。</p>
-<p>&nbsp;&nbsp;思考了下：错误原因为   <code>com.android.dx.cf.iface.ParseException: bad class file magic (cafebabe) or version (0034.0000)</code>     可见是 apk 编译打包流程中 dx 工具把 class 文件向 dex 转化的时候， dx.jar 抛出来的解析异常。bad magic nubmer 不太可能，因为肯定是 Java 源代码编译出来的 class 文件，文件 magic number 不会错， 只能是解析不了 version 。 上个问题提到了class 文件格式中 对 version 的定义，而  <code>version 0034.0000</code>   应该是16进制格式，其实就是对应的 10 进制的数字 52 （Ingter.toHexString(52) =  34)，major version 52 还是 JDK 1.8 ，所以问题产生原因：仍然识别不了 JDK 1.8 编译出来的class 文件（我们的产品是1.8 编译出的class）。&nbsp;&nbsp;只不过这次是不是 JDK 无法识别，而是 SDK Build tools 中的 dx.jar 无法识别。这又是为啥子嘞</p>
-<p><img src="img/naotou.jpg" alt="挠头..."></p>
-<p>&nbsp;&nbsp;猜一下：只有在低版本 JDK 编译 高版本 JDK 编译出来的 class 才会产生无法识别 class format version 问题。而刚刚为 dx.jar 抛出的异常，dx 工具在 Android SDK build tools 里，可能为 SDK build tools 版本有些低。而 该该版本 build tools 里面的工具 jar 中使用的 JDK 是低版本的 JDK，所以识别不了 JDK1.8 。   很有可能该低版本的 build tools 在发布的时候，当时还没有发布  Java8，所以当 低版本 build tools 处理1.8 version 的 class 文件会手足无措，抛了异常。</p>
-<p>&nbsp;&nbsp;我还真是个小机灵鬼呢  🙊</p>
-<p>&nbsp;&nbsp; 接下来就是验证一下猜想。问了下用户 SDK build tools 版本为：21.0.0。 查了下 <a href="https://developer.android.com/studio/releases/build-tools.html" target="_blank" rel="external">Android SDK Build tools release notes</a> 发现该版本 build tools 是 2014 年10月份发布的。再查看下 <a href="http://www.oracle.com/technetwork/java/javase/8u-relnotes-2225394.html" target="_blank" rel="external">JDK Release notes</a> ， 发现 JDK 1.8 最早也是 2014年5月份的。 因为 JDK 是 Oracle 维护更新，而 Android SDK 是 Google 维护更新，所以当新版 JDK(such as 1.8) 发布出来后，Google 要过一段时间才会适配新的 JDK(1.8) 版本，所以在适配新版本 JDK(1.8) 之前版本的 SDK 是无法识别新版 JDK(1.8) class 的， 所以 21.0.0 的 SDK Build tools 很可能就是这种情况。</p>
-<p>&nbsp;Bingo！</p>
-<p>&nbsp;&nbsp; 最后提供解决方法：更换高版本SDK Build tools 即可。</p>
-<p>  有时候的用户问题真的很掉头发。</p>
-<p><img src="img/tuofa.jpg" alt="tuofa"></p>
-
-          
+<p>~~
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/19/解决用户JDK版本问题的思考/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
