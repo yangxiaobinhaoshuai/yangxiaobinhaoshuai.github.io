@@ -1,0 +1,790 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="官方问题描述 问题：项目方法超 65535 编译报错。产生原因：我们都知道 Android apk 构建中会把所有 class 文件都转化为 Dex 文件，而单个 Dex 中方法数不能超过 2 的 16 次方，即 65535。既然是编译构建 dex 过程中发生的错误，肯定是由转化 dex  的工具 dx 抛出来的异常。 By the way ： 各个版本 SDK Build tools 都可以从">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dex分包原理与65535原因">
+<meta property="og:url" content="http://yoursite.com/2018/01/17/Dex分包原理和65535原因/index.html">
+<meta property="og:site_name" content="杨晓彬">
+<meta property="og:description" content="官方问题描述 问题：项目方法超 65535 编译报错。产生原因：我们都知道 Android apk 构建中会把所有 class 文件都转化为 Dex 文件，而单个 Dex 中方法数不能超过 2 的 16 次方，即 65535。既然是编译构建 dex 过程中发生的错误，肯定是由转化 dex  的工具 dx 抛出来的异常。 By the way ： 各个版本 SDK Build tools 都可以从">
+<meta property="og:updated_time" content="2018-04-19T12:31:36.325Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dex分包原理与65535原因">
+<meta name="twitter:description" content="官方问题描述 问题：项目方法超 65535 编译报错。产生原因：我们都知道 Android apk 构建中会把所有 class 文件都转化为 Dex 文件，而单个 Dex 中方法数不能超过 2 的 16 次方，即 65535。既然是编译构建 dex 过程中发生的错误，肯定是由转化 dex  的工具 dx 抛出来的异常。 By the way ： 各个版本 SDK Build tools 都可以从">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/01/17/Dex分包原理和65535原因/"/>
+
+
+
+
+
+  <title>Dex分包原理与65535原因 | 杨晓彬</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">杨晓彬</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">果敢！</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/17/Dex分包原理和65535原因/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="杨晓彬">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xinzhizhu.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="杨晓彬">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Dex分包原理与65535原因</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-17T20:13:54+08:00">
+                2018-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p> <a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">官方问题描述</a></p>
+<h5 id="问题：项目方法超-65535-编译报错。"><a href="#问题：项目方法超-65535-编译报错。" class="headerlink" title="问题：项目方法超 65535 编译报错。"></a>问题：项目方法超 65535 编译报错。</h5><h5 id="产生原因："><a href="#产生原因：" class="headerlink" title="产生原因："></a>产生原因：</h5><p>我们都知道 Android apk 构建中会把所有 class 文件都转化为 Dex 文件，而单个 Dex 中方法数不能超过 2 的 16 次方，即 65535。既然是编译构建 dex 过程中发生的错误，肯定是由转化 dex  的工具 dx 抛出来的异常。</p>
+<p>By the way ： 各个版本 SDK Build tools 都可以从<a href="http://mirrors.neusoft.edu.cn/android/repository/" target="_blank" rel="external">这里</a>下载</p>
+<a id="more"></a>
+<hr>
+<p>我们先来<strong>认识下 dx</strong>（build tools version 27.0.3 ，dx version 1.14） 工具，它在 SDK build tools 下。找到命令看看 Usage</p>
+<p>命令行执行：</p>
+<p><code>$ /Users/handsomeyang/Library/Android/sdk/build-tools/27.0.3/dx  --help</code></p>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">usage:</div><div class="line">  dx --dex [--debug] [--verbose] [--positions=&lt;style&gt;] [--no-locals]</div><div class="line">  [--no-optimize] [--statistics] [--[no-]optimize-list=&lt;file&gt;] [--no-strict]</div><div class="line">  [--keep-classes] [--output=&lt;file&gt;] [--dump-to=&lt;file&gt;] [--dump-width=&lt;n&gt;]</div><div class="line">  [--dump-method=&lt;name&gt;[*]] [--verbose-dump] [--no-files] [--core-library]</div><div class="line">  [--num-threads=&lt;n&gt;] [--incremental] [--force-jumbo] [--no-warning]</div><div class="line">  [--multi-dex [--main-dex-list=&lt;file&gt; [--minimal-main-dex]]</div><div class="line">  [--input-list=&lt;file&gt;] [--min-sdk-version=&lt;n&gt;]</div><div class="line">  [&lt;file&gt;.class | &lt;file&gt;.&#123;zip,jar,apk&#125; | &lt;directory&gt;] ...</div><div class="line">    Convert a set of classfiles into a dex file, optionally embedded in a</div><div class="line">    jar/zip. Output name must end with one of: .dex .jar .zip .apk or be a</div><div class="line">    directory.</div><div class="line">    Positions options: none, important, lines.</div><div class="line">    --multi-dex: allows to generate several dex files if needed. This option is</div><div class="line">    exclusive with --incremental, causes --num-threads to be ignored and only</div><div class="line">    supports folder or archive output.</div><div class="line">    --main-dex-list=&lt;file&gt;: &lt;file&gt; is a list of class file names, classes</div><div class="line">    defined by those class files are put in classes.dex.</div><div class="line">    --minimal-main-dex: only classes selected by --main-dex-list are to be put</div><div class="line">    in the main dex.</div><div class="line">    --input-list: &lt;file&gt; is a list of inputs.</div><div class="line">    Each line in &lt;file&gt; must end with one of: .class .jar .zip .apk or be a</div><div class="line">    directory.</div><div class="line">    --min-sdk-version=&lt;n&gt;: Enable dex file features that require at least sdk</div><div class="line">    version &lt;n&gt;.</div><div class="line">  dx --annotool --annotation=&lt;class&gt; [--element=&lt;element types&gt;]</div><div class="line">  [--print=&lt;print types&gt;]</div><div class="line">  dx --dump [--debug] [--strict] [--bytes] [--optimize]</div><div class="line">  [--basic-blocks | --rop-blocks | --ssa-blocks | --dot] [--ssa-step=&lt;step&gt;]</div><div class="line">  [--width=&lt;n&gt;] [&lt;file&gt;.class | &lt;file&gt;.txt] ...</div><div class="line">    Dump classfiles, or transformations thereof, in a human-oriented format.</div><div class="line">  dx --find-usages &lt;file.dex&gt; &lt;declaring type&gt; &lt;member&gt;</div><div class="line">    Find references and declarations to a field or method.</div><div class="line">    &lt;declaring type&gt; is a class name in internal form, like Ljava/lang/Object;</div><div class="line">    &lt;member&gt; is a field or method name, like hashCode.</div><div class="line">  dx -J&lt;option&gt; ... &lt;arguments, in one of the above forms&gt;</div><div class="line">    Pass VM-specific options to the virtual machine that runs dx.</div><div class="line">  dx --version</div><div class="line">    Print the version of this tool (1.14).</div><div class="line">  dx --help</div><div class="line">    Print this message.</div></pre></td></tr></table></figure>
+<p>可见 dx 工具描述为：把一系列 class 文件 或者 jar 包 转化为 dex 文件的工具。</p>
+<p>顺便介绍一下 dx 的比较常见 options 参数，后面还是说到，这里简单介绍下：</p>
+<ol>
+<li>- - multi-dex ：能够生成多个 dex files</li>
+<li>- -main-dex-list=<file> :   参数 file 是列出  main dex （即 classes.dex） 中所包含的类信息。通俗点就是你想要主 Dex 中有哪些类不被分出去就写在 file 里，把 file 传进参数命令里； 通常用来解决分包造成的 classNotDefException 问题。</file></li>
+<li>- - minimal-main-dex : 只有- -main-dex-list=<file>  指定的 file 中的类被保留在主Dex，用来减小 main dex 压力。</file></li>
+</ol>
+<hr>
+<p>简单给大家演示一下 dx 工具命令行用法：(注意如果报错很可能是 jar 包的问题， 比如 classpath 之类的问题)</p>
+<ul>
+<li><strong>jar —&gt; dex</strong> :</li>
+<li><strong>command : </strong><code>dx --dex --debug --verbose --output=/Users/handsomeyang/Desktop/demo  /Users/handsomeyang/Desktop/Demo.jar</code></li>
+</ul>
+<p>默认会生成 classes.dex ，当然是在如果你方法数、字段数没超 65535 的情况下，但是超了会发生什么呢:smiley:</p>
+<ul>
+<li><strong>Multidex</strong> : 注意要设置 <code>--set-max-idx-number=1000</code> 哦，默认应该是 jar 包方法数超过 65535 才会分包。而且这个<code>--set-max-idx-number=1000</code>  是对生成的每个 dex 文件都起限制的。</li>
+<li><strong>command : </strong><code>dx --dex --debug --verbose --multi-dex --set-max-idx-number=1000 --output=/Users/handsomeyang/Desktop/demo /Users/handsomeyang/Desktop/Demo.jar</code></li>
+</ul>
+<p>看下控制台输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">// 目录和 resource 被忽略</div><div class="line">ignored resource com/xxx/xxx/xxx/xxx/</div><div class="line">processing com/xxx/xxxx/xxx/xxx/xxxx.class...</div><div class="line">// 内部类算单独的类作为处理</div><div class="line">processing com/xxx/xxx/xxx/xx/xxx/xxx$xxxx.class...</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>然后，就会在<code>/Users/handsomeyang/Desktop/demo</code> 目录下生成诸如 <code>classes.dex</code>、<code>calssses2.dex</code>、<code>classes3.dex</code> …  而且每个 dex 方法数都不超过 1000。</p>
+<hr>
+<p>其实这个 dx 工具就是一个 bash 脚本（windows 下是batch）， 用文本编辑器打开 dx (这个是bash）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div></pre></td><td class="code"><pre><div class="line"># Set up prog to be the path of this script, including following symlinks,</div><div class="line"># and set up progdir to be the fully-qualified pathname of its directory.</div><div class="line">prog=&quot;$0&quot;</div><div class="line">while [ -h &quot;$&#123;prog&#125;&quot; ]; do</div><div class="line">    newProg=`/bin/ls -ld &quot;$&#123;prog&#125;&quot;`</div><div class="line">    newProg=`expr &quot;$&#123;newProg&#125;&quot; : &quot;.* -&gt; \(.*\)$&quot;`</div><div class="line">    if expr &quot;x$&#123;newProg&#125;&quot; : &apos;x/&apos; &gt;/dev/null; then</div><div class="line">        prog=&quot;$&#123;newProg&#125;&quot;</div><div class="line">    else</div><div class="line">        progdir=`dirname &quot;$&#123;prog&#125;&quot;`</div><div class="line">        prog=&quot;$&#123;progdir&#125;/$&#123;newProg&#125;&quot;</div><div class="line">    fi</div><div class="line">done</div><div class="line">oldwd=`pwd`</div><div class="line">progdir=`dirname &quot;$&#123;prog&#125;&quot;`</div><div class="line">cd &quot;$&#123;progdir&#125;&quot;</div><div class="line">progdir=`pwd`</div><div class="line">prog=&quot;$&#123;progdir&#125;&quot;/`basename &quot;$&#123;prog&#125;&quot;`</div><div class="line">cd &quot;$&#123;oldwd&#125;&quot;</div><div class="line"></div><div class="line">jarfile=dx.jar</div><div class="line">libdir=&quot;$progdir&quot;</div><div class="line"></div><div class="line">if [ ! -r &quot;$libdir/$jarfile&quot; ]; then</div><div class="line">    # set dx.jar location for the SDK case</div><div class="line">    libdir=&quot;$libdir/lib&quot;</div><div class="line">fi</div><div class="line"></div><div class="line">if [ ! -r &quot;$libdir/$jarfile&quot; ]; then</div><div class="line">    # set dx.jar location for the Android tree case</div><div class="line">    libdir=`dirname &quot;$progdir&quot;`/framework</div><div class="line">fi</div><div class="line"></div><div class="line">if [ ! -r &quot;$libdir/$jarfile&quot; ]; then</div><div class="line">    echo `basename &quot;$prog&quot;`&quot;: can&apos;t find $jarfile&quot;</div><div class="line">    exit 1</div><div class="line">fi</div><div class="line"></div><div class="line"># By default, give dx a max heap size of 1 gig. This can be overridden</div><div class="line"># by using a &quot;-J&quot; option (see below).</div><div class="line">defaultMx=&quot;-Xmx1024M&quot;</div><div class="line"></div><div class="line"># The following will extract any initial parameters of the form</div><div class="line"># &quot;-J&lt;stuff&gt;&quot; from the command line and pass them to the Java</div><div class="line"># invocation (instead of to dx). This makes it possible for you to add</div><div class="line"># a command-line parameter such as &quot;-JXmx256M&quot; in your scripts, for</div><div class="line"># example. &quot;java&quot; (with no args) and &quot;java -X&quot; give a summary of</div><div class="line"># available options.</div><div class="line"></div><div class="line">javaOpts=&quot;&quot;</div><div class="line"></div><div class="line">while expr &quot;x$1&quot; : &apos;x-J&apos; &gt;/dev/null; do</div><div class="line">    opt=`expr &quot;x$1&quot; : &apos;x-J\(.*\)&apos;`</div><div class="line">    javaOpts=&quot;$&#123;javaOpts&#125; -$&#123;opt&#125;&quot;</div><div class="line">    if expr &quot;x$&#123;opt&#125;&quot; : &quot;xXmx[0-9]&quot; &gt;/dev/null; then</div><div class="line">        defaultMx=&quot;no&quot;</div><div class="line">    fi</div><div class="line">    shift</div><div class="line">done</div><div class="line"></div><div class="line">if [ &quot;$&#123;defaultMx&#125;&quot; != &quot;no&quot; ]; then</div><div class="line">    javaOpts=&quot;$&#123;javaOpts&#125; $&#123;defaultMx&#125;&quot;</div><div class="line">fi</div><div class="line"></div><div class="line">if [ &quot;$OSTYPE&quot; = &quot;cygwin&quot; ]; then</div><div class="line">    # For Cygwin, convert the jarfile path into native Windows style.</div><div class="line">    jarpath=`cygpath -w &quot;$libdir/$jarfile&quot;`</div><div class="line">else</div><div class="line">    jarpath=&quot;$libdir/$jarfile&quot;</div><div class="line">fi</div><div class="line"></div><div class="line">exec java $javaOpts -jar &quot;$jarpath&quot; &quot;$@&quot;</div></pre></td></tr></table></figure>
+<p>其实我们看注释就够了，dx 脚本只是对 dx.jar 的使用做了封装，实际上 dx 工具只做了两件事：一是找到同级目录下 libs 下 dx.jar 的 path，二是读取你设置的 Java 虚拟机内存配置参数（可选）。</p>
+<p>这里我们留意个细节：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># By default, give dx a max heap size of 1 gig. This can be overridden</div><div class="line"># by using a &quot;-J&quot; option (see below).</div><div class="line">defaultMx=&quot;-Xmx1024M&quot;</div></pre></td></tr></table></figure>
+<p>使用 dx 工具操作 apk 或者 dex ，有时候会报 OOM 提示  <code>java heap size</code>  之类关键字，就是执行 dx 命令 Java Process 内存最大参数太小了，可以调大试试。（应该只有我们产品用的到吧，因为我们产品有命令行工具用到了 dx 工具，而且出现过 OOM，所以有点印象，当提醒我自己哈哈）。</p>
+<p>关键在这一行：<code>exec java $javaOpts -jar &quot;$jarpath&quot; &quot;$@&quot;</code>   其实就是：java -jar   /Users/handsomeyang/Library/Android/sdk/build-tools/27.0.3/lib/dx.jar</p>
+<p>你会发现跟直接执行 dx 命令 输出是一样的  ：）</p>
+<hr>
+<p>就是说 class 转 dex 实际上是由 dx.jar 来完成的。 既然是可运行的 jar 包， 里面肯定有 META-INF 目录，一般这个目录下面的 MANIFEST.MF 文件会保存 jar 包 启动类 路径。直接打开 MANIFESET.MF：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Manifest-Version: 1.0</div><div class="line">Created-By: 1.8.0_45 (Oracle Corporation)</div><div class="line">Main-Class: com.android.dx.command.Main</div></pre></td></tr></table></figure>
+<p>这里把 dx.jar 拷贝到 IDE 任何一个项目 libs 下，依赖上就能看到 dx.jar 源代码，而且支持跳转。</p>
+<p>这里简单带大家梳理下 dx multidex 的工作流程，其他功能自己可以看看。</p>
+<p><code>com.android.dx.command.Main</code>   中的 Main 方法主要起一个枢纽的功能，把传进的参数做解析，就是上面  [- - xxx ] 之类的，其实就是一堆 if else 分支语句。不同功能，会把相应参数再次传到相应类的 Main 方法中。我们找我们关心的 dex 转换处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">if(arg.equals(&quot;--dex&quot;)) &#123;</div><div class="line">  com.android.dx.command.dexer.Main.main(without(args, i));</div><div class="line">    break;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>找到下一个类  <code>com.android.dx.command.dexer.Main</code>  ， 其实无非也是先解析参数，把参数封装到一个  <code>Arguments</code>  的内部类中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">public static void main(String[] argArray) throws IOException &#123;</div><div class="line">        DxContext context = new DxContext();</div><div class="line">        Main.Arguments arguments = new Main.Arguments(context);</div><div class="line">        arguments.parse(argArray);</div><div class="line">        int result = (new Main(context)).runDx(arguments);</div><div class="line">        if(result != 0) &#123;</div><div class="line">            System.exit(result);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>在解析并且封装 Main 方法中的参数的时候还有个小插曲要介绍：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">public static class Arguments &#123;</div><div class="line">....</div><div class="line"></div><div class="line">// 输出文件是否是 .zip .apk .jar </div><div class="line">public boolean jarOutput = false; </div><div class="line">// 如果一个dex 中 String 引用超过了 65535 需要开启这个模式，才能引用到所有 String</div><div class="line">public boolean forceJumbo = false;</div><div class="line">// - -main-dex-list=&lt;file&gt; </div><div class="line">public String mainDexListFile = null;</div><div class="line">//  - - minimal-main-dex</div><div class="line">public boolean minimalMainDex = false;</div><div class="line">//  --multi-dex</div><div class="line">public boolean multiDex = false;</div><div class="line"></div><div class="line">// each dex 引用ID 上限，包括方法、字段、类等。</div><div class="line">private int maxNumberOfIdxPerDex = 65536;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">// 这里这个 --set-max-idx-number dx usage 中并没有给出，但是确实有这个用法</div><div class="line"> &#125; else if(parser.isArg(&quot;--set-max-idx-number=&quot;)) &#123;</div><div class="line">     // parser.getLastValue() 为获取 “=” 后面的数值</div><div class="line">     this.maxNumberOfIdxPerDex = Integer.parseInt(parser.getLastValue());</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>这里简单提出来 <code>parse</code>方法的一段  <code>if else</code> 分支，注释很清楚了，就是 转换 dex 的时候可以通过<code>--set-max-idx-number=</code> 来改 dex 默认的引用 id 上限（默认 65535），当然只能往小了改。</p>
+<p>然后调用 <code>runDx</code>  方法，<code>runDx</code> 方法判断了是否需要 multidex 分多个dex 处理 ，需要 multidex 处理的走 <code>runMultidex()</code> 这个方法。我们看需要 multidex 处理的情况，这里贴一下代码块： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div></pre></td><td class="code"><pre><div class="line">private int runMultiDex() throws IOException &#123;</div><div class="line">        assert !this.args.incremental;</div><div class="line">	    // 读取 - -main-dex-list=&lt;file&gt; 指定的 keep class</div><div class="line">        if(this.args.mainDexListFile != null) &#123;</div><div class="line">            this.classesInMainDex = new HashSet();</div><div class="line">            readPathsFromFile(this.args.mainDexListFile, this.classesInMainDex);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        this.dexOutPool = Executors.newFixedThreadPool(this.args.numThreads);</div><div class="line">        // 1.核心逻辑 class ——&gt;  dex</div><div class="line">        if(!this.processAllFiles()) &#123;</div><div class="line">            return 1;</div><div class="line">        &#125; else if(!this.libraryDexBuffers.isEmpty()) &#123;</div><div class="line">            throw new DexException(&quot;Library dex files are not supported in multi-dex mode&quot;);</div><div class="line">        &#125; else &#123;</div><div class="line">            if(this.outputDex != null) &#123;</div><div class="line">                // 2.这里把转化了格式的字节写进 dexFile 里，而对 方法数 是否超 65535 就是在这里判断的</div><div class="line">                this.dexOutputFutures.add(this.dexOutPool.submit(new Main.DexWriter(this.outputDex)));</div><div class="line">                this.outputDex = null;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            try &#123;</div><div class="line">                this.dexOutPool.shutdown();</div><div class="line">                if(!this.dexOutPool.awaitTermination(600L, TimeUnit.SECONDS)) &#123;</div><div class="line">                    throw new RuntimeException(&quot;Timed out waiting for dex writer threads.&quot;);</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                Iterator var1 = this.dexOutputFutures.iterator();</div><div class="line"></div><div class="line">                while(var1.hasNext()) &#123;</div><div class="line">                    Future&lt;byte[]&gt; f = (Future)var1.next();</div><div class="line">                    // 这个 dexOutputArrays 就是 存放 dex bytes 的 set</div><div class="line">                    this.dexOutputArrays.add(f.get());</div><div class="line">                &#125;</div><div class="line">            &#125; catch (InterruptedException var9) &#123;</div><div class="line">                this.dexOutPool.shutdownNow();</div><div class="line">                throw new RuntimeException(&quot;A dex writer thread has been interrupted.&quot;);</div><div class="line">            &#125; catch (Exception var10) &#123;</div><div class="line">                this.dexOutPool.shutdownNow();</div><div class="line">                throw new RuntimeException(&quot;Unexpected exception in dex writer thread&quot;);</div><div class="line">            &#125;</div><div class="line">			// 判断输出目录是否是 .zip .jar .apk </div><div class="line">            if(this.args.jarOutput) &#123;</div><div class="line">                for(int i = 0; i &lt; this.dexOutputArrays.size(); ++i) &#123;</div><div class="line">                    this.outputResources.put(getDexFileName(i), this.dexOutputArrays.get(i));</div><div class="line">                &#125;</div><div class="line">			   // 把 dex 添加至压缩文件</div><div class="line">                if(!this.createJar(this.args.outName)) &#123;</div><div class="line">                    return 3;</div><div class="line">                &#125;</div><div class="line">                // 输出目录是一个 directory </div><div class="line">            &#125; else if(this.args.outName != null) &#123;</div><div class="line">                File outDir = new File(this.args.outName);</div><div class="line"></div><div class="line">                assert outDir.isDirectory();</div><div class="line"></div><div class="line">                for(int i = 0; i &lt; this.dexOutputArrays.size(); ++i) &#123;</div><div class="line">                	// getDexFileName 代码块我贴下面 </div><div class="line">                    FileOutputStream out = new FileOutputStream(new File(outDir, getDexFileName(i)));</div><div class="line"></div><div class="line">                    try &#123;</div><div class="line">                    	// 把 classes.dex classes2.dex classes3.dex ... 写入 dex 文件  </div><div class="line">                        out.write((byte[])this.dexOutputArrays.get(i));</div><div class="line">                    &#125; finally &#123;</div><div class="line">                        this.closeOutput(out);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            return 0;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p><strong>（关键地方我都注释了）</strong></p>
+<p>classes.dex、classes2.dex、classes3.dex…  来历</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">private static String getDexFileName(int i) &#123;</div><div class="line">       return i == 0?&quot;classes.dex&quot;:&quot;classes&quot; + (i + 1) + &quot;.dex&quot;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面的<code>runMultidex</code> 一共两个关键点：</p>
+<ol>
+<li><p>class —&gt; dex  的逻辑；</p>
+</li>
+<li><p>65535 问题的产生；</p>
+<p>​</p>
+</li>
+</ol>
+<hr>
+<p>我们先看 dex 转换过程：</p>
+<p><code>processAllFiles</code> 这个方法名字已经很见名知意了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">private boolean processAllFiles() &#123;</div><div class="line">        ...</div><div class="line">        try &#123;</div><div class="line">        	// 获取- -main-dex-list=&lt;file&gt; 的 keep 文件，虽然我们可能不会手动传，但是 sdk build tools 会自动生成 main dex 的 keep 文件。这个问题以后再聊，总之会走这里的分支。</div><div class="line">            if(this.args.mainDexListFile != null) &#123;</div><div class="line">                FileNameFilter mainPassFilter = this.args.strictNameCheck?new Main.MainDexListFilter():new Main.BestEffortMainDexListFilter();</div><div class="line"></div><div class="line">                int i;</div><div class="line">                // 核心处理逻辑 ：处理 inputFile 中的每一项 </div><div class="line">                for(i = 0; i &lt; fileNames.length; ++i) &#123;</div><div class="line">                    this.processOne(fileNames[i], (FileNameFilter)mainPassFilter);</div><div class="line">                &#125;</div></pre></td></tr></table></figure>
+<p>经过一系列判读和操作，最终走到<code>processClass</code>  这个方法，看名字也知道是转换关键； <code>processClass</code>中启动了一个带返回值的线程 callable ，那我们看下<code>call</code>(相当于 Thread 的 run 方法) 方法。注意这里的 <code>processClass</code> 指的是每一个要被转换的 Class 字节。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">public Boolean call() throws Exception &#123;</div><div class="line">           DirectClassFile cf = (DirectClassFile)this.dcff.get();</div><div class="line">           return this.call(cf);</div><div class="line">       &#125;</div><div class="line">       </div><div class="line">private Boolean call(DirectClassFile cf) &#123;</div><div class="line">           int maxMethodIdsInClass = 0;</div><div class="line">           int maxFieldIdsInClass = 0;</div><div class="line">           if(Main.this.args.multiDex) &#123;</div><div class="line">               // 每个 java 类都有各自的 常量池</div><div class="line">               int constantPoolSize = cf.getConstantPool().size();</div><div class="line">               // 每个 class 中的 method count</div><div class="line">               maxMethodIdsInClass = constantPoolSize + cf.getMethods().size() + 2;</div><div class="line">               // 每个 class 中的 field count</div><div class="line">               maxFieldIdsInClass = constantPoolSize + cf.getFields().size() + 9;</div><div class="line">               synchronized(Main.this.dexRotationLock) &#123;</div><div class="line">                   int numMethodIds;</div><div class="line">                   int numFieldIds;</div><div class="line">                   synchronized(Main.this.outputDex) &#123;</div><div class="line">                       // dexFile 中已有的 methoud id count</div><div class="line">                       numMethodIds = Main.this.outputDex.getMethodIds().items().size();</div><div class="line">                       // dexFile 中已有的 field id count</div><div class="line">                       numFieldIds = Main.this.outputDex.getFieldIds().items().size();</div><div class="line">                   &#125;</div><div class="line">			   // 如果 method count 或者 field count 超过 maxNumberOfIdxPerDex 引用上限就 new 新的 dexFile</div><div class="line">                   while(numMethodIds + maxMethodIdsInClass + Main.this.maxMethodIdsInProcess &gt; Main.this.args.maxNumberOfIdxPerDex || numFieldIds + maxFieldIdsInClass + Main.this.maxFieldIdsInProcess &gt; Main.this.args.maxNumberOfIdxPerDex) &#123;</div><div class="line">                       if(Main.this.maxMethodIdsInProcess &lt;= 0 &amp;&amp; Main.this.maxFieldIdsInProcess &lt;= 0) &#123;</div><div class="line">                           if(Main.this.outputDex.getClassDefs().items().size() &lt;= 0) &#123;</div><div class="line">                               break;</div><div class="line">                           &#125;</div><div class="line">					 // new 一个新的 dexFile</div><div class="line">                           Main.this.rotateDexFile();</div><div class="line">                       &#125; else &#123;</div><div class="line">                           try &#123;</div><div class="line">                               Main.this.dexRotationLock.wait();</div><div class="line">                           &#125; catch (InterruptedException var13) &#123;</div><div class="line">                               ;</div><div class="line">                           &#125;</div><div class="line">                       &#125;</div><div class="line"></div><div class="line">                       synchronized(Main.this.outputDex) &#123;</div><div class="line">                           numMethodIds = Main.this.outputDex.getMethodIds().items().size();</div><div class="line">                           numFieldIds = Main.this.outputDex.getFieldIds().items().size();</div><div class="line">                       &#125;</div><div class="line">                   &#125;</div><div class="line"></div><div class="line">                   Main.this.maxMethodIdsInProcess = Main.this.maxMethodIdsInProcess + maxMethodIdsInClass;</div><div class="line">                   Main.this.maxFieldIdsInProcess = Main.this.maxFieldIdsInProcess + maxFieldIdsInClass;</div><div class="line">               &#125;</div><div class="line">           &#125;</div><div class="line">	   // 用 Callable  对 class 进行转化，如：合并常量池，去除多余冗余信息等操作。</div><div class="line">           Future&lt;ClassDefItem&gt; cdif = Main.this.classTranslatorPool.submit(Main.this.new ClassTranslatorTask(this.name, this.bytes, cf));</div><div class="line">           Future&lt;Boolean&gt; res = Main.this.classDefItemConsumer.submit(Main.this.new ClassDefItemConsumer(this.name, cdif, maxMethodIdsInClass, maxFieldIdsInClass));</div><div class="line">           Main.this.addToDexFutures.add(res);</div><div class="line">           return Boolean.valueOf(true);</div><div class="line">       &#125;</div></pre></td></tr></table></figure>
+<p>总之这段代码内容就是，先定义 一个 DexFile 输出文件，然后每次 add 一个 Class 字节做处理，如果加上这个 Class 的方法后者字段数超过了 定义的 DexFile id limit ，就再次 new 一个新的 DexFile。</p>
+<p><strong>理一下 multidex 分包转化 class 为 dex 的逻辑：<code>runMultiDex</code> —&gt; <code>processAllFiles</code> —&gt; 判断 inputFile 类型，如果是压缩类型，就解压后处理每一个 class 字节 —&gt;<code>processFileBytes</code>—&gt; 过滤掉resource 等字节，留下 class byte —&gt; <code>processClass</code> —&gt; 判断是否超过 DexFile id limit，超过就 new 新的 DexFile 继续处理字节 —&gt; 最后把转化好格式的字节 写入多个 DexFile 中。具体的 class 转 Dex 格式就比较枯燥了，就不介绍了，了解下流程为我们分析 65535 做铺垫。</strong></p>
+<hr>
+<p>那我们来看<code>runMultidex</code> 中 65535 问题的产生根源。</p>
+<p>如果不启用 multidex 功能，项目很容易产生 65535 ，但是开启了 multidex 有时候仍然会造成 65535 （这个以后分析），但是开启不开启 multidex 功能，程序丢 65535 异常的原因肯定是一样的，就是向 DexFile 写入字节的时候，方法数超过了 DexFile 的默认最大上限 65535。</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 这是之前 runMultidex 方法中的一个分支  </div><div class="line">// 这里就是开了个线程向 DexFile 中写字节</div><div class="line">// 2.这里把生成的 dexFile 转化为字节，而对 方法数是否超 65535 就是在这里判断的</div><div class="line">this.dexOutputFutures.add(this.dexOutPool.submit(new Main.DexWriter(this.outputDex)));</div></pre></td></tr></table></figure>
+<p>跟踪  <code>DexWriter</code>  方法最终到 DexFile 的 <code>toDex0</code>  方法，里面会对 Dex 文件格式每一个部分进行检查；比如：<code>this.methodIds.prepare();</code>  猜测对 method count 判断在这里进行。跟踪进去后发现，<code>MethodIdsSection</code> 和 <code>FiledIdsSection</code> 的父类都有一个 <code>getTooManyMembersMessage</code>  方法，我贴下面（为了封装这一个共有方法而提的父类）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">protected void orderItems() &#123;</div><div class="line">        int idx = 0;</div><div class="line">        if(this.items().size() &gt; 65536) &#123;</div><div class="line">            throw new DexIndexOverflowException(this.getTooManyMembersMessage());</div><div class="line">        &#125; else &#123;</div><div class="line">            for(Iterator var2 = this.items().iterator(); var2.hasNext(); ++idx) &#123;</div><div class="line">                Object i = var2.next();</div><div class="line">                ((MemberIdItem)i).setIndex(idx);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">private String getTooManyMembersMessage()</div><div class="line">   ...</div><div class="line">    try</div><div class="line">    &#123;</div><div class="line">      //  丢出 65535 异常： “Too many field references: 131000; max is 65536.” 的地方</div><div class="line">      //  max is %3$d.  ===&gt; Integer.valueOf(65536)</div><div class="line">    String memberType = this instanceof MethodIdsSection?&quot;method&quot;:&quot;field&quot;;</div><div class="line">            formatter.format(&quot;Too many %1$s references to fit in one dex file: %2$d; max is %3$d.%nYou may try using multi-dex. If multi-dex is enabled then the list of classes for the main dex list is too large.%nReferences by package:&quot;, new Object[]&#123;memberType, Integer.valueOf(this.items().size()), Integer.valueOf(65536)&#125;);</div><div class="line">            Iterator var11 = membersByPackage.entrySet().iterator();</div><div class="line"></div><div class="line">            while(var11.hasNext()) &#123;</div><div class="line">                Entry&lt;String, AtomicInteger&gt; entry = (Entry)var11.next();</div><div class="line">                formatter.format(&quot;%n%6d %s&quot;, new Object[]&#123;Integer.valueOf(((AtomicInteger)entry.getValue()).get()), entry.getKey()&#125;);</div><div class="line">            &#125;</div><div class="line"> ...</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>错误信息提示：如果 Dex id 引用太多，你可以开启 multidex 模式，如果已经开启，main dex 中的引用太多了。</p>
+<p>这就是在编译期间 Field 和 Method 会抛  <code>Too many field references: 131000; max is 65536.</code>   异常根源。</p>
+<hr>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/07/OneApm-Http-JS-Error-Test/" rel="next" title="OneApm Http JS Error Test">
+                <i class="fa fa-chevron-left"></i> OneApm Http JS Error Test
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/19/解决用户JDK版本问题的思考/" rel="prev" title="解决用户JDK版本问题的思考">
+                解决用户JDK版本问题的思考 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/xinzhizhu.png"
+               alt="杨晓彬" />
+          <p class="site-author-name" itemprop="name">杨晓彬</p>
+           
+              <p class="site-description motion-element" itemprop="description">solder or cowboy?</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yangxiaobinhaoshuai" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wanandroid.com/" title="hongyang's wanandriod" target="_blank">hongyang's wanandriod</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#问题：项目方法超-65535-编译报错。"><span class="nav-number">1.</span> <span class="nav-text">问题：项目方法超 65535 编译报错。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#产生原因："><span class="nav-number">2.</span> <span class="nav-text">产生原因：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">杨晓彬</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
