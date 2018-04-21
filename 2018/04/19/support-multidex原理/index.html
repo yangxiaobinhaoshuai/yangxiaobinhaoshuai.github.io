@@ -1,0 +1,818 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。 Support-multidex原理首先集成 support-multidex，不多赘述。 分析的是 support-multidex-1.03 ，里面类不多，其实一共两个关键类：MultiDex">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Support-multidex原理">
+<meta property="og:url" content="http://yoursite.com/2018/04/19/support-multidex原理/index.html">
+<meta property="og:site_name" content="杨晓彬">
+<meta property="og:description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。 Support-multidex原理首先集成 support-multidex，不多赘述。 分析的是 support-multidex-1.03 ，里面类不多，其实一共两个关键类：MultiDex">
+<meta property="og:image" content="http://yoursite.com/img/ilovestudy.jpg">
+<meta property="og:updated_time" content="2018-04-21T17:26:05.340Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Support-multidex原理">
+<meta name="twitter:description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。 Support-multidex原理首先集成 support-multidex，不多赘述。 分析的是 support-multidex-1.03 ，里面类不多，其实一共两个关键类：MultiDex">
+<meta name="twitter:image" content="http://yoursite.com/img/ilovestudy.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/19/support-multidex原理/"/>
+
+
+
+
+
+  <title>Support-multidex原理 | 杨晓彬</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">杨晓彬</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">果敢！</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/19/support-multidex原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="杨晓彬">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xinzhizhu.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="杨晓彬">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Support-multidex原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-19T20:28:54+08:00">
+                2018-04-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>#简介：</p>
+<p>之前介绍了<a href="https://yangxiaobinhaoshuai.github.io/2018/01/17/Dex%E5%88%86%E5%8C%85%E5%8E%9F%E7%90%86%E5%92%8C65535%E5%8E%9F%E5%9B%A0/#more" target="_blank" rel="external">Dex分包原理和65535原因</a>，apk 分包<a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">官网</a>给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。</p>
+<h1 id="Support-multidex原理"><a href="#Support-multidex原理" class="headerlink" title="Support-multidex原理"></a>Support-multidex原理</h1><p>首先集成 support-multidex，不多赘述。</p>
+<p>分析的是 <code>support-multidex-1.03</code> ，里面类不多，其实一共两个关键类：<code>MultiDex</code> 和 <code>MultiDexxtractor</code>  ，调用入口肯定是 <code>MultiDex.install</code> ，<code>install</code> 方法判断了是否符合 multidex 执行条件，如：虚拟机版本号和 SDK 版本号之类；其中会判断 Dalvik 虚拟机版本是否支持内置加载 Mulitdex 功能，如果虚拟机支持就用虚拟机内置的加载 Mulitdex 功能，然后 disable support-mulitdex library，如果虚拟机不支持 mulitdex 才会启用 support-multidex。</p>
+<p>我写了个 Demo 看了下 MultiDex 的 log：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">I/MultiDex: VM with version 2.1.0 has multidex support</div><div class="line">I/MultiDex: Installing application</div><div class="line">I/MultiDex: VM has multidex support, MultiDex support library is disabled.</div></pre></td></tr></table></figure>
+<p>虚拟机内置加载 multidex 功能应该和 support-multidex 大同小异，我们看下走 support-multidex 情况，判断完版本调用 <code>doInstallation</code>  ：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * @param sourceApk: /data/app/&lt;pkgName&gt;-1/base.apk </div><div class="line"> * @param dataDir :  /data/user/0/&lt;pkgName&gt;</div><div class="line"> */</div><div class="line">private static void doInstallation(Context mainContext, File sourceApk, File dataDir, String secondaryFolderName, String prefsKeyPrefix, boolean reinstallOnPatchRecoverableException)&#123;</div><div class="line">     ...</div><div class="line">     // 清理 /data/user/0/&lt;pkgName&gt;/files/secondary-dexes/ 目录下的 secondary dexes</div><div class="line">     // 之前版本 support-multidex 放 secondary dexes 的目录</div><div class="line">    clearOldDexDir(mainContext);</div><div class="line">    ...</div><div class="line">    // secondary dexDir:/data/user/0/&lt;pkgName&gt;/code_cache/secondary-dexes</div><div class="line">    File dexDir = getDexDir(mainContext, dataDir, secondaryFolderName);</div><div class="line">    // secondary dexes 提取器</div><div class="line">    MultiDexExtractor extractor = new MultiDexExtractor(sourceApk, dexDir);</div><div class="line">    </div><div class="line">    ...</div><div class="line">    </div><div class="line">    try &#123;</div><div class="line">    	// 提取 secondary dexes 到指定目录</div><div class="line">        List files = extractor.load(mainContext, prefsKeyPrefix, false);</div><div class="line"></div><div class="line">        try &#123;</div><div class="line">            // 加载 seondaryDexes</div><div class="line">           installSecondaryDexes(loader, dexDir, files);</div><div class="line">          &#125; catch (IOException var26) &#123;</div><div class="line">             if(!reinstallOnPatchRecoverableException) &#123;</div><div class="line">               throw var26;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">           Log.w(&quot;MultiDex&quot;, &quot;Failed to install extracted secondary dex files, retrying with forced extraction&quot;, var26);</div><div class="line">           // 第一次提取 secondary dexes 失败，尝试第二次强行提取</div><div class="line">           files = extractor.load(mainContext, prefsKeyPrefix, true);</div><div class="line">            // 加载 seondaryDexes</div><div class="line">           installSecondaryDexes(loader, dexDir, files);</div><div class="line">            &#125;</div><div class="line">            </div><div class="line">       ...</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>主要逻辑就是：</p>
+<ol>
+<li>检测是否需要 support-multidex 工作；</li>
+<li>需要工作的话，先清理存储 secondary dexes 目录；</li>
+<li>然后提取 apk secondary dexes 到 指定目录；</li>
+<li>通过反射加载 secondary dexes</li>
+</ol>
+<p>有两处关键逻辑：</p>
+<ol>
+<li>提取 secondary dexes</li>
+<li>加载 secondary dexes</li>
+</ol>
+<hr>
+<p>先看提取 <code>extractor.load</code>：</p>
+<p>注：<a href="https://zh.wikipedia.org/wiki/%E5%BE%AA%E7%92%B0%E5%86%97%E9%A4%98%E6%A0%A1%E9%A9%97" target="_blank" rel="external">CRC的全称是循环冗余校验值</a>：一种检测或者校验数据传输或者数据保存后可能出现错误的 哈希函数值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 提取 secondary dexes 到 data 目录中的 files </div><div class="line"> *</div><div class="line"> * @param : forceReload : 第一次提取失败后，第二次强制提取的标识</div><div class="line"> */</div><div class="line">List&lt;? extends File&gt; load(Context context, String prefsKeyPrefix, boolean forceReload) throws IOException &#123;</div><div class="line">Log.i(&quot;MultiDex&quot;, &quot;MultiDexExtractor.load(&quot; + this.sourceApk.getPath() + &quot;, &quot; + forceReload + &quot;, &quot; + prefsKeyPrefix + &quot;)&quot;);</div><div class="line">    // 保证提取操作同步</div><div class="line">    if(!this.cacheLock.isValid()) &#123;</div><div class="line">      throw new IllegalStateException(&quot;MultiDexExtractor was closed&quot;);</div><div class="line">    &#125; else &#123;</div><div class="line">      List files;</div><div class="line">      // 通过 apk crc 校验值，检测 apk 如果改变了，就重新提取，否则直接用上次提取过的文件</div><div class="line">      if(!forceReload &amp;&amp; !isModified(context, this.sourceApk, this.sourceCrc, prefsKeyPrefix)) &#123;</div><div class="line">        try &#123;</div><div class="line">          // 加载上次提取过的文件</div><div class="line">          files = this.loadExistingExtractions(context, prefsKeyPrefix);</div><div class="line">        &#125; catch (IOException var6) &#123;</div><div class="line">          Log.w(&quot;MultiDex&quot;, &quot;Failed to reload existing extracted secondary dex files, falling back to fresh extraction&quot;, var6);</div><div class="line">          // 加载已经提取过的文件失败，从新提取</div><div class="line">          files = this.performExtractions();</div><div class="line">          // 记录本次操作信息：apk 修改时间戳、apk crc 校验值、dex 数量、每个提取出来的 zip 的时间戳和crc</div><div class="line">          putStoredApkInfo(context, prefsKeyPrefix, getTimeStamp(this.sourceApk), this.sourceCrc, files);</div><div class="line">        &#125;</div><div class="line">      &#125; else &#123;</div><div class="line">        if(forceReload) &#123;</div><div class="line">          Log.i(&quot;MultiDex&quot;, &quot;Forced extraction must be performed.&quot;);</div><div class="line">        &#125; else &#123;</div><div class="line">          Log.i(&quot;MultiDex&quot;, &quot;Detected that extraction must be performed.&quot;);</div><div class="line">        &#125;</div><div class="line">		// 提取 seoncdary dexes 信息</div><div class="line">        files = this.performExtractions();</div><div class="line">        //  存储本次提取操作信息</div><div class="line">        putStoredApkInfo(context, prefsKeyPrefix, getTimeStamp(this.sourceApk), this.sourceCrc, files);</div><div class="line">      &#125;</div><div class="line"></div><div class="line">      Log.i(&quot;MultiDex&quot;, &quot;load found &quot; + files.size() + &quot; secondary dex files&quot;);</div><div class="line">      return files;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>提取 secondary dexes 的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line">private List&lt;MultiDexExtractor.ExtractedDex&gt; performExtractions() throws IOException &#123;</div><div class="line">    // base.apk.classes</div><div class="line">    String extractedFilePrefix = this.sourceApk.getName() + &quot;.classes&quot;;</div><div class="line">    // 清理 /data/user/0/&lt;pkgName&gt;/files/secondary-dexes/  </div><div class="line">    // 这个目录就是这个版本 multidex 存放 secondary dexes 的        	</div><div class="line">    this.clearDexDir();</div><div class="line">    List&lt;MultiDexExtractor.ExtractedDex&gt; files = new ArrayList();</div><div class="line">    // 解压 apk </div><div class="line">    ZipFile apk = new ZipFile(this.sourceApk);</div><div class="line"></div><div class="line">    try &#123;</div><div class="line">       // seoncdary dexes 从 2 开始 classes2.dex , classes3.dex ...</div><div class="line">      int secondaryNumber = 2;</div><div class="line">	  </div><div class="line">      for(ZipEntry dexFile = apk.getEntry(&quot;classes&quot; + secondaryNumber + &quot;.dex&quot;); dexFile != null; dexFile = apk.getEntry(&quot;classes&quot; + secondaryNumber + &quot;.dex&quot;)) &#123;</div><div class="line">        // fileName ：base.apk.classes2.dex.zip</div><div class="line">        String fileName = extractedFilePrefix + secondaryNumber + &quot;.zip&quot;;</div><div class="line">        //  extractedFile ：/data/user/0/&lt;pkgName&gt;/code_cache/secondary-dexes/base.apk/classes2.dex.zip</div><div class="line">        MultiDexExtractor.ExtractedDex extractedFile = new MultiDexExtractor.ExtractedDex(this.dexDir, fileName);</div><div class="line">        files.add(extractedFile);</div><div class="line">        Log.i(&quot;MultiDex&quot;, &quot;Extraction is needed for file &quot; + extractedFile);</div><div class="line">        int numAttempts = 0;</div><div class="line">        boolean isExtractionSuccessful = false;</div><div class="line">		// 如果一直不成功，最多尝试 3 次提取 secondary dex </div><div class="line">		// 把 dexFile 中的字节写到 /data/user/0/&lt;pkgName&gt;/code_cache/secondary-dexes/base.apk/classesN.dex.zip 中</div><div class="line">		// 把 classesN.dex 字节一律转化为 classes.dex 一个 entry 压缩在 base.apk.classesN.dex.zip 中</div><div class="line">        while(numAttempts &lt; 3 &amp;&amp; !isExtractionSuccessful) &#123;</div><div class="line">          ++numAttempts;</div><div class="line">          extract(apk, dexFile, extractedFile, extractedFilePrefix);</div><div class="line"></div><div class="line">          try &#123;</div><div class="line">            // 记录本次 file crc 校验值</div><div class="line">            extractedFile.crc = getZipCrc(extractedFile);</div><div class="line">            isExtractionSuccessful = true;</div><div class="line">          &#125; catch (IOException var18) &#123;</div><div class="line">            isExtractionSuccessful = false;</div><div class="line">            Log.w(&quot;MultiDex&quot;, &quot;Failed to read crc from &quot; + extractedFile.getAbsolutePath(), var18);</div><div class="line">          &#125;</div><div class="line"></div><div class="line">          Log.i(&quot;MultiDex&quot;, &quot;Extraction &quot; + (isExtractionSuccessful?&quot;succeeded&quot;:&quot;failed&quot;) + &quot; &apos;&quot; + extractedFile.getAbsolutePath() + &quot;&apos;: length &quot; + extractedFile.length() + &quot; - crc: &quot; + extractedFile.crc);</div><div class="line">          if(!isExtractionSuccessful) &#123;</div><div class="line">            extractedFile.delete();</div><div class="line">            if(extractedFile.exists()) &#123;</div><div class="line">              Log.w(&quot;MultiDex&quot;, &quot;Failed to delete corrupted secondary dex &apos;&quot; + extractedFile.getPath() + &quot;&apos;&quot;);</div><div class="line">            &#125;</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        if(!isExtractionSuccessful) &#123;</div><div class="line">          throw new IOException(&quot;Could not create zip file &quot; + extractedFile.getAbsolutePath() + &quot; for secondary dex (&quot; + secondaryNumber + &quot;)&quot;);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        ++secondaryNumber;</div><div class="line">      &#125;</div><div class="line">    &#125; finally &#123;</div><div class="line">      try &#123;</div><div class="line">        apk.close();</div><div class="line">      &#125; catch (IOException var17) &#123;</div><div class="line">        Log.w(&quot;MultiDex&quot;, &quot;Failed to close resource&quot;, var17);</div><div class="line">      &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return files;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>理一下提取 secondary dexes 的逻辑：</p>
+<ol>
+<li>判断 apk 是否被修改，没有的话，加载之前提取的内容；</li>
+<li><code>performExtractions</code>  解压 apk，把apk中的 classesN.dex (N&gt;1) 字节提取到 /data/user/0/<pkgname>/code_cache/secondary-dexes/base.apk.classesN.dex.zip 当中；</pkgname></li>
+<li><code>putStoredApkInfo</code> 保存本次提取操作信息，方便下次判断；</li>
+</ol>
+<hr>
+<p>在看加载 secondary dexes 之前，我们来了解下 Android 中 classLoader 知识。</p>
+<p><img src="/img/ilovestudy.jpg" alt="good good study"></p>
+<p>关于 ClassLoader 有两点要说：</p>
+<ol>
+<li>类加载流程；</li>
+<li>双亲委托模型；</li>
+</ol>
+<p><strong>类加载</strong>详细流程比较复杂，这里简单聊下。加载一个类到内存，首先会通过类的全限定名来获取此类的二进制字节流，但是虚拟机规范并没有规定怎么来获取二进制流，从哪里获取。这也是虚拟机设计团队有意为之，也因此诞生了很多强大的技术，比如：动态代理等。</p>
+<p>所以获取二进制字节流的方式，既可以通过虚拟机的引导类加载器由虚拟机来完成加载，也可以通过我们自定义 ClassLoader 来完成。举个场景，比如，因为某些限制条件，需要把 Class 分开来加载，分开的部分可以用自定义的 ClassLoader 来加载到内存。听起来像不像 multiDex 中加载 Secondary dexes 哈哈。</p>
+<p>也简单说下<strong>双亲委托模型</strong>，定义：除了顶层的 Bootstrap ClassLoader（所有 ClassLodaer 的父加载器） 外，所有 ClassLoader 都必须有父加载器；当收到类加载请求的时候，只有父加载器无法加载的时候，子加载器才会加载。</p>
+<p>而标识一个 Class 需要这个类本身和加载该类的 ClassLoader 两者来决定。所以我们自定义的 java.lang.Object 和 JDK 中的 Object 不是同一个类，因为 JDK 中的类是通过虚拟机的顶层加载器 Bootstrap ClassLoader 加载的，而这个加载器只会加载特定文件，比如 JDK 中的 rt.jar，所以即便我们自己写个 java.lang.Object 打个 jar 包，丢进 JDK lib 目录也是不会被加载的。 所以在所有 ClassLoader 加载的 class 中 Object 类都是同一个。保证了 Java 程序安全性。</p>
+<p>再来看 Android 中的 ClassLoader</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">System.out.println(context.getClassLoader.toString);</div><div class="line">...</div><div class="line">PathClassLoader[DexPathList[[zip file &quot;/data/app/&lt;pkgName&gt;-1/base.apk&quot;],nativeLibraryDirectories=[/data/app/&lt;pkgName&gt;-1/lib/arm64, /system/lib64, /vendor/lib64, /system/vendor/lib64, /product/lib64]]]</div></pre></td></tr></table></figure>
+<p>看来是 <code>PathClassLoader</code> 呢。</p>
+<p> <a href="https://www.androidos.net.cn/android/5.0.1_r1/xref/libcore/dalvik/src/main/java/dalvik/system" target="_blank" rel="external">5.0 Android 源码</a> 中 ClassLoader 的继承关系：</p>
+<p>而 <code>PathClassLoader</code> 都继承自 <code>BaseDexClassLoader</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * 1. 保存 dex/resource path</div><div class="line"> * 2. 保存 native code libraries path</div><div class="line"> *</div><div class="line"> * 保存的 entries 可能是 包含 classes.dex 的 jar 、 zip 或者是二进制 resources </div><div class="line"> * 亦或者是一个 .dex 文件</div><div class="line"> */</div><div class="line"> final class DexPathList &#123;</div><div class="line"></div><div class="line">    ...</div><div class="line"></div><div class="line">    /**</div><div class="line">     * List of dex/resource (class path) elements.</div><div class="line">     */</div><div class="line">    private final Element[] dexElements;</div><div class="line">    </div><div class="line">    /** List of native library directories. */</div><div class="line">    private final File[] nativeLibraryDirectories;</div><div class="line">    </div><div class="line">    ...</div><div class="line">    </div><div class="line">    /**</div><div class="line">     * 把 dex/resource list 中的资源处理并加载</div><div class="line">     * @param files: 保存 base.apk.classesN.dex.zip 的 list</div><div class="line">     */</div><div class="line">    private static Element[] makeDexElements(ArrayList&lt;File&gt; files, File optimizedDirectory,</div><div class="line">                                             ArrayList&lt;IOException&gt; suppressedExceptions) &#123;</div><div class="line">        ArrayList&lt;Element&gt; elements = new ArrayList&lt;Element&gt;();</div><div class="line">        /*</div><div class="line">         * 解压保存 classes.dex 的 zip</div><div class="line">         */</div><div class="line">        for (File file : files) &#123;</div><div class="line">            File zip = null;</div><div class="line">            DexFile dex = null;</div><div class="line">            String name = file.getName();</div><div class="line"></div><div class="line">            if (file.isDirectory()) &#123;</div><div class="line">                // We support directories for looking up resources.</div><div class="line">                // This is only useful for running libcore tests.</div><div class="line">                elements.add(new Element(file, true, null, null));</div><div class="line">            &#125; else if (file.isFile())&#123;</div><div class="line">                if (name.endsWith(DEX_SUFFIX)) &#123;</div><div class="line">                    // Raw dex file (not inside a zip/jar).</div><div class="line">                    try &#123;</div><div class="line">                        // 从字节实例化 DexFile </div><div class="line">                        // 加载过程会判断 optimizedDirectory 是否为空</div><div class="line">                        // 1. optimizedDirectory 为空，就直接 new DexFile 进行加载。</div><div class="line">                        // 2. optimizedDirectory 不为空，进行 optimized（通过 native 方法进行 dex 合并）优化</div><div class="line">                        dex = loadDexFile(file, optimizedDirectory);</div><div class="line">                    &#125; catch (IOException ex) &#123;</div><div class="line">                        System.logE(&quot;Unable to load dex file: &quot; + file, ex);</div><div class="line">                    &#125;    </div><div class="line">         ...</div><div class="line">        </div><div class="line">        return elements.toArray(new Element[elements.size()]);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">  </div><div class="line">    /**</div><div class="line">     * 遍历 list 中的 dex 找到同名 class，如果该 class 还没有加载，就用这个 ClassLoader 的 context 来</div><div class="line">     * 加载 class.</div><div class="line">     *</div><div class="line">     * @param name of class to find</div><div class="line">     * @param suppressed exceptions encountered whilst finding the class</div><div class="line">     * @return the named class or &#123;@code null&#125; if the class is not</div><div class="line">     * found in any of the dex files</div><div class="line">     */</div><div class="line">    public Class findClass(String name, List&lt;Throwable&gt; suppressed) &#123;</div><div class="line">        for (Element element : dexElements) &#123;</div><div class="line">            DexFile dex = element.dexFile;</div><div class="line"></div><div class="line">            if (dex != null) &#123;</div><div class="line">                // 最终通过 native 方法来加载 class</div><div class="line">                Class clazz = dex.loadClassBinaryName(name, definingContext, suppressed);</div><div class="line">                if (clazz != null) &#123;</div><div class="line">                    return clazz;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        if (dexElementsSuppressedExceptions != null) &#123;</div><div class="line">            suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));</div><div class="line">        &#125;</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">	</div><div class="line">	// 报 ClassNotFoundException 时候的输出</div><div class="line">    @Override public String toString() &#123;</div><div class="line">        return &quot;DexPathList[&quot; + Arrays.toString(dexElements) +</div><div class="line">            &quot;,nativeLibraryDirectories=&quot; + Arrays.toString(nativeLibraryDirectories) + &quot;]&quot;;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    ...</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">public class BaseDexClassLoader extends ClassLoader &#123;</div><div class="line">    // 存放 dex 文件和 so 文件的目录</div><div class="line">    private final DexPathList pathList;</div><div class="line">    public BaseDexClassLoader(String dexPath, File optimizedDirectory,</div><div class="line">            String libraryPath, ClassLoader parent) &#123;</div><div class="line">        super(parent);</div><div class="line">        this.pathList = new DexPathList(this, dexPath, libraryPath, optimizedDirectory);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">     @Override</div><div class="line">    protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException &#123;</div><div class="line">        List&lt;Throwable&gt; suppressedExceptions = new ArrayList&lt;Throwable&gt;();</div><div class="line">        // 交给 DexPathList 来加载 class</div><div class="line">        Class c = pathList.findClass(name, suppressedExceptions);</div><div class="line">        if (c == null) &#123;</div><div class="line">            ClassNotFoundException cnfe = new ClassNotFoundException(&quot;Didn&apos;t find class \&quot;&quot; + name + &quot;\&quot; on path: &quot; + pathList);</div><div class="line">            for (Throwable t : suppressedExceptions) &#123;</div><div class="line">                cnfe.addSuppressed(t);</div><div class="line">            &#125;</div><div class="line">            throw cnfe;</div><div class="line">        &#125;</div><div class="line">        return c;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">   </div><div class="line">    @Override public String toString() &#123;</div><div class="line">        return getClass().getName() + &quot;[&quot; + pathList + &quot;]&quot;;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>主要类加载功能都在 <code>BaseDexClassLoader</code> 中了，但是他有两个子类 ：<code>PathClassLoader</code>  和 <code>DexClassLoader</code> ，我们来看下这两者区别：</p>
+<p><code>PathClassLoader :</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">package dalvik.system;</div><div class="line"></div><div class="line">/**</div><div class="line"> * Provides a simple &#123;@link ClassLoader&#125; implementation that operates on a list</div><div class="line"> * of files and directories in the local file system, but does not attempt to</div><div class="line"> * load classes from the network. Android uses this class for its system class</div><div class="line"> * loader and for its application class loader(s).</div><div class="line"> * </div><div class="line"> * 能加载本地 class，但不能加载网络传输过来的 class。</div><div class="line"> * Android 用它加载系统 class 和 已经安装 apk 中的 class</div><div class="line"> * （之前我们在 app 中 System.out.println 过）</div><div class="line"> */</div><div class="line">public class PathClassLoader extends BaseDexClassLoader &#123;</div><div class="line"></div><div class="line">    public PathClassLoader(String dexPath, ClassLoader parent) &#123;</div><div class="line">        super(dexPath, null, null, parent);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public PathClassLoader(String dexPath, String libraryPath,</div><div class="line">            ClassLoader parent) &#123;</div><div class="line">        super(dexPath, null, libraryPath, parent);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>DexClassLoader</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">package dalvik.system;</div><div class="line"></div><div class="line">import java.io.File;</div><div class="line"></div><div class="line">/**</div><div class="line"> * A class loader that loads classes from &#123;@code .jar&#125; and &#123;@code .apk&#125; files</div><div class="line"> * containing a &#123;@code classes.dex&#125; entry. This can be used to execute code not</div><div class="line"> * installed as part of an application.</div><div class="line"> * </div><div class="line"> * 从包含 classes.dex entry 的 jar 或者 apk 加载 class ；</div><div class="line"> * 可以执行并非来自 application 中的 code。这也是插件化和热修复的基础，在不需要安装应用的情况下，完成需要       使用的 dex 的加载。</div><div class="line"> *</div><div class="line"> * 使用 Context.getCodeCacheDir() 目录来缓存 optimized classes ，安全起见，不建议(只是不建议)使用外部存储来</div><div class="line"> * 存储 optimized classes。</div><div class="line"> * 可以加载安装到 sd 卡的 apk</div><div class="line"> */</div><div class="line">public class DexClassLoader extends BaseDexClassLoader &#123;</div><div class="line"></div><div class="line">    public DexClassLoader(String dexPath, String optimizedDirectory,</div><div class="line">            String libraryPath, ClassLoader parent) &#123;</div><div class="line">        // 跟 PathClassLoader 不同的第二个参数；</div><div class="line">        // 会进行 DexOPT 优化，每次启动读取优化过的 dex 缓存</div><div class="line">        super(dexPath, new File(optimizedDirectory), libraryPath, parent);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可见<code>DexClassLoader</code>和<code>PathClassLoader</code> 只有调用父类构造器时候，是否传<code>optimizedDirectory</code> 的区别，跟踪<code>BaseDexClassLoader</code> 中的构造器<code>optimizedDirectory</code>引用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">private static DexFile loadDexFile(File file, File optimizedDirectory)</div><div class="line">          throws IOException &#123;</div><div class="line">      if (optimizedDirectory == null) &#123;</div><div class="line">          return new DexFile(file);</div><div class="line">      &#125; else &#123;</div><div class="line">          String optimizedPath = optimizedPathFor(file, optimizedDirectory);</div><div class="line">          return DexFile.loadDex(file.getPath(), optimizedPath, 0);</div><div class="line">      &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p><code>optimizedDirectory</code> 为空，会直接加载 Dex，而不为空的 <code>loadDex</code> 方法中有这么一段注释：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * ...</div><div class="line"> * This is intended for use by applications that wish to download</div><div class="line"> * and execute DEX files outside the usual application installation</div><div class="line"> * mechanism.  This function should not be called directly by an</div><div class="line"> * application; instead, use a class loader such as</div><div class="line"> * dalvik.system.DexClassLoader.</div><div class="line"> * ...</div><div class="line"> * 用于当 application 希望下载并执行那些 来自非正常应用安装机制 的 DexFiles 时候。</div><div class="line"> * 这项功能不应该由 applicaton 来直接调用，而是自定义 DexClassLoader 来加载。</div><div class="line"> */</div><div class="line">  static public DexFile loadDex(String sourcePathName, String outputPathName,</div><div class="line">    int flags) throws IOException &#123;</div><div class="line">    return new DexFile(sourcePathName, outputPathName, flags);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>所以 : <code>PathClassLoader</code> 用于加载系统 class 和已经安装的 apk； <code>DexClassLoader</code> 可以根据 <code>optimizedDirectory</code></p>
+<p> 来加载自定义目录里的 dex、jar 等 class。</p>
+<p>理一下 Android 的 class 加载过程 ：<code>BaseClassLoader</code>  找到 <code>makeDexElements</code> 生成的 <code>dexElements</code> 然后遍历包含的 class 字节的 element， 最终通过 native 方法来加载所有 class 到内存。</p>
+<hr>
+<p>再看加载 <code>installSecondaryDexes</code> :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">private static void installSecondaryDexes(ClassLoader loader, File dexDir, List&lt;? extends File&gt; files) &#123;</div><div class="line">    if(!files.isEmpty()) &#123;</div><div class="line">      if(VERSION.SDK_INT &gt;= 19) &#123;</div><div class="line">        MultiDex.V19.install(loader, files, dexDir);</div><div class="line">      &#125; else if(VERSION.SDK_INT &gt;= 14) &#123;</div><div class="line">        MultiDex.V14.install(loader, files);</div><div class="line">      &#125; else &#123;</div><div class="line">        MultiDex.V4.install(loader, files);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>做了SDK Version 适配，原理异曲同工，看一个分支即可，选择跟踪<code>MultiDex.V19.install(loader, files, dexDir)</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">private static final class V19 &#123;</div><div class="line">    private V19() &#123;</div><div class="line">    &#125;</div><div class="line">    /**</div><div class="line">     * @param loader                     : applicationContent.getClassLoader </div><div class="line">     * @param additionalClassPathEntries : secondary dexes 提取出来的 zip list</div><div class="line">     * @param optimizedDirectory         : /data/user/0/&lt;pkgName&gt;/code_cache/secondary-dexes/</div><div class="line">     */</div><div class="line">    static void install(ClassLoader loader, List&lt;? extends File&gt; additionalClassPathEntries, File optimizedDirectory) &#123;</div><div class="line">    </div><div class="line">       /* </div><div class="line">        * The patched class loader is expected to be a descendant of</div><div class="line">        * dalvik.system.BaseDexClassLoader. We modify its</div><div class="line">        * dalvik.system.DexPathList pathList field to append additional DEX</div><div class="line">        * file entries.</div><div class="line">        * 反射获取 BaseDexClassLoader 中的 pathList 把 secodnary dexes 添加进去</div><div class="line">        */</div><div class="line">      Field pathListField = MultiDex.findField(loader, &quot;pathList&quot;);</div><div class="line">      Object dexPathList = pathListFiel d.get(loader);</div><div class="line">      </div><div class="line">      ...</div><div class="line">      </div><div class="line">      // 通过反射用包含原始 dex 和 secondary dexes 的 element[] 替换原来的 dexlist 中的 element[]</div><div class="line">      MultiDex.expandFieldArray(dexPathList, &quot;dexElements&quot;, makeDexElements(dexPathList, new ArrayList(additionalClassPathEntries), optimizedDirectory, suppressedExceptions));</div><div class="line">      </div><div class="line">    ...</div><div class="line">    </div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>最后来理一下 Multidex 加载原理 ：</p>
+<ol>
+<li>判断 Davlik 版本，是否支持 内置 multidex 功能；和 SDK 版本是否支持 support-multidex；</li>
+<li>实例化 ClassLoader ，确保 secondary dexes 目录存在并清理；</li>
+<li>MultidexExtractor 解压 apk 提取 classesN.dex  的字节到 /data/user/0/<pkgname>/code_cache/secondary-dexes/base.apk/classesN.dex.zip 中；每个 zip 中都只有一个 名为 classes.dex 的 entry；<ol>
+<li>把当前 apk crc 校验值和 sharepreference 中之前保存的做比较，</li>
+<li>如果相等，就直接用上次的提取过的 files；</li>
+<li>如果不等，就重新执行提取操作，并保存本次 lastModified time 和 crc；</li>
+</ol>
+</pkgname></li>
+<li>安装 secondary dexes ：通过发射获取 <code>BaseClassLoader</code> 中  <code>DexpathList</code> 中的 <code>Element[]</code> 用包含 secondary dexes 的 新  Element[] 替换旧的。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/18/ASM和ASMDex使用说明/" rel="next" title="ASM和ASMDex使用说明">
+                <i class="fa fa-chevron-left"></i> ASM和ASMDex使用说明
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/xinzhizhu.png"
+               alt="杨晓彬" />
+          <p class="site-author-name" itemprop="name">杨晓彬</p>
+           
+              <p class="site-description motion-element" itemprop="description">solder or cowboy?</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/yangxiaobinhaoshuai" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/3273949894/profile?topnav=1&wvr=6" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.wanandroid.com/" title="hongyang's wanandriod" target="_blank">hongyang's wanandriod</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Support-multidex原理"><span class="nav-number">1.</span> <span class="nav-text">Support-multidex原理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">杨晓彬</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
