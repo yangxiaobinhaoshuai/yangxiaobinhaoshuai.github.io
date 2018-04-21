@@ -90,17 +90,17 @@
 
 
 
-<meta name="description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。 Support-multidex原理首先集成 support-multidex，不多赘述。 分析的是 support-multidex-1.03 ，里面类不多，其实一共两个关键类：MultiDex">
+<meta name="description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理。 ~~">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Support-multidex原理">
 <meta property="og:url" content="http://yoursite.com/2018/04/19/support-multidex原理/index.html">
 <meta property="og:site_name" content="杨晓彬">
-<meta property="og:description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。 Support-multidex原理首先集成 support-multidex，不多赘述。 分析的是 support-multidex-1.03 ，里面类不多，其实一共两个关键类：MultiDex">
+<meta property="og:description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理。 ~~">
 <meta property="og:image" content="http://yoursite.com/img/ilovestudy.jpg">
-<meta property="og:updated_time" content="2018-04-21T17:26:05.340Z">
+<meta property="og:updated_time" content="2018-04-21T17:27:56.520Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Support-multidex原理">
-<meta name="twitter:description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。 Support-multidex原理首先集成 support-multidex，不多赘述。 分析的是 support-multidex-1.03 ，里面类不多，其实一共两个关键类：MultiDex">
+<meta name="twitter:description" content="#简介： 之前介绍了Dex分包原理和65535原因，apk 分包官网给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理。 ~~">
 <meta name="twitter:image" content="http://yoursite.com/img/ilovestudy.jpg">
 
 
@@ -335,7 +335,8 @@
 
       
         <p>#简介：</p>
-<p>之前介绍了<a href="https://yangxiaobinhaoshuai.github.io/2018/01/17/Dex%E5%88%86%E5%8C%85%E5%8E%9F%E7%90%86%E5%92%8C65535%E5%8E%9F%E5%9B%A0/#more" target="_blank" rel="external">Dex分包原理和65535原因</a>，apk 分包<a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">官网</a>给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理和如果分过包仍然65535怎么办。</p>
+<p>之前介绍了<a href="https://yangxiaobinhaoshuai.github.io/2018/01/17/Dex%E5%88%86%E5%8C%85%E5%8E%9F%E7%90%86%E5%92%8C65535%E5%8E%9F%E5%9B%A0/#more" target="_blank" rel="external">Dex分包原理和65535原因</a>，apk 分包<a href="https://developer.android.com/studio/build/multidex.html?hl=zh-cn" target="_blank" rel="external">官网</a>给了详细的步骤。这里来说下分包过程的 compile 的 support-multidex 包的原理。</p>
+<p>~~ <a id="more"></a></p>
 <h1 id="Support-multidex原理"><a href="#Support-multidex原理" class="headerlink" title="Support-multidex原理"></a>Support-multidex原理</h1><p>首先集成 support-multidex，不多赘述。</p>
 <p>分析的是 <code>support-multidex-1.03</code> ，里面类不多，其实一共两个关键类：<code>MultiDex</code> 和 <code>MultiDexxtractor</code>  ，调用入口肯定是 <code>MultiDex.install</code> ，<code>install</code> 方法判断了是否符合 multidex 执行条件，如：虚拟机版本号和 SDK 版本号之类；其中会判断 Dalvik 虚拟机版本是否支持内置加载 Mulitdex 功能，如果虚拟机支持就用虚拟机内置的加载 Mulitdex 功能，然后 disable support-mulitdex library，如果虚拟机不支持 mulitdex 才会启用 support-multidex。</p>
 <p>我写了个 Demo 看了下 MultiDex 的 log：</p>
