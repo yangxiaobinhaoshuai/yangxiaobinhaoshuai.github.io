@@ -96,7 +96,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/04/22/Multidex分包Class依赖处理原理-md/index.html">
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="之前在介绍 dx 生成 mulitdex 工作原理 的时候，在 processAllFiles 处理所有 class 的时候会对 - -main-dex-list=&amp;lt;file&amp;gt;  设置的对应参数 this.args.mainDexListFile 进行判断。 123// 获取- -main-dex-list=&amp;lt;file&amp;gt; 的 keep 文件，虽然我们可能不会手动传，但是 s">
-<meta property="og:updated_time" content="2018-04-24T02:38:06.486Z">
+<meta property="og:updated_time" content="2018-04-24T02:41:21.489Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Multidex分包Class依赖处理原理.md">
 <meta name="twitter:description" content="之前在介绍 dx 生成 mulitdex 工作原理 的时候，在 processAllFiles 处理所有 class 的时候会对 - -main-dex-list=&amp;lt;file&amp;gt;  设置的对应参数 this.args.mainDexListFile 进行判断。 123// 获取- -main-dex-list=&amp;lt;file&amp;gt; 的 keep 文件，虽然我们可能不会手动传，但是 s">
@@ -334,7 +334,9 @@
       
         <p>之前在介绍 <a href="https://yangxiaobinhaoshuai.github.io/2018/01/17/Dex%E5%88%86%E5%8C%85%E5%8E%9F%E7%90%86%E5%92%8C65535%E5%8E%9F%E5%9B%A0/#more" target="_blank" rel="external">dx 生成 mulitdex 工作原理</a> 的时候，在 <code>processAllFiles</code> 处理所有 class 的时候会对 <code>- -main-dex-list=&lt;file&gt;</code>  设置的对应参数 <code>this.args.mainDexListFile</code> 进行判断。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 获取- -main-dex-list=&lt;file&gt; 的 keep 文件，虽然我们可能不会手动传，但是 sdk build tools 会自动生成 main dex 的 keep 文件。这个问题以后再聊，总之会走这里的分支。</div><div class="line">            if(this.args.mainDexListFile != null) &#123;</div><div class="line">                FileNameFilter mainPassFilter = this.args.strictNameCheck?new Main.MainDexListFilter():new Main.BestEffortMainDexListFilter();</div></pre></td></tr></table></figure>
-<p>现在我们聊一下这个 keep 文件的来历。当然它的作用就是在 dx 将 class 拆分成多个 dex 文件的时候，保证 classes.dex 中必要的类 <strong>不</strong> 被分出去，避免应用在启动时会造成 classNotFoundException 。关键在于如何生成这个文件。</p>
+<p>现在我们聊一下这个 keep 文件的来历。</p>
+<a id="more"></a>
+<p>当然它的作用就是在 dx 将 class 拆分成多个 dex 文件的时候，保证 classes.dex 中必要的类 <strong>不</strong> 被分出去，避免应用在启动时会造成 classNotFoundException 。关键在于如何生成这个文件。</p>
 <p>当我们使用 mulitdex 处理 apk 时候，在工程 app —&gt; build —&gt; intermidiates —&gt; muliti-dex —&gt; <build-type> 下会有这么两个文件：</build-type></p>
 <ul>
 <li><code>maindexlist.txt</code>         :  以 class 全路径形式列出了 keep 在 main dex 中的所有 class；</li>
