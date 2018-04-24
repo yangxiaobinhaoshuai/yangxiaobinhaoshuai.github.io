@@ -264,6 +264,282 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/22/Gradle构建APK全过程解析-md/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="杨晓彬">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xinzhizhu.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="杨晓彬">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/22/Gradle构建APK全过程解析-md/" itemprop="url">Gradle构建APK全过程解析.md</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-22T19:06:29+08:00">
+                2018-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>[</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/22/Multidex分包Class依赖处理原理-md/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="杨晓彬">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/xinzhizhu.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="杨晓彬">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/22/Multidex分包Class依赖处理原理-md/" itemprop="url">Multidex分包Class依赖处理原理.md</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-22T19:06:07+08:00">
+                2018-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>之前在介绍 <a href="https://yangxiaobinhaoshuai.github.io/2018/01/17/Dex%E5%88%86%E5%8C%85%E5%8E%9F%E7%90%86%E5%92%8C65535%E5%8E%9F%E5%9B%A0/#more" target="_blank" rel="external">dx 生成 mulitdex 工作原理</a> 的时候，在 <code>processAllFiles</code> 处理所有 class 的时候会对 <code>- -main-dex-list=&lt;file&gt;</code>  设置的对应参数 <code>this.args.mainDexListFile</code> 进行判断。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// 获取- -main-dex-list=&lt;file&gt; 的 keep 文件，虽然我们可能不会手动传，但是 sdk build tools 会自动生成 main dex 的 keep 文件。这个问题以后再聊，总之会走这里的分支。</div><div class="line">            if(this.args.mainDexListFile != null) &#123;</div><div class="line">                FileNameFilter mainPassFilter = this.args.strictNameCheck?new Main.MainDexListFilter():new Main.BestEffortMainDexListFilter();</div></pre></td></tr></table></figure>
+<p>现在我们聊一下这个 keep 文件的来历。当然它的作用就是在 dx 将 class 拆分成多个 dex 文件的时候，保证 classes.dex 中必要的类 <strong>不</strong> 被分出去，避免应用在启动时会造成 classNotFoundException 。关键在于如何生成这个文件。</p>
+<p>当我们使用 mulitdex 处理 apk 时候，在工程 app —&gt; build —&gt; intermidiates —&gt; muliti-dex —&gt; <build-type> 下会有这么两个文件：</build-type></p>
+<ul>
+<li><code>maindexlist.txt</code>         :  以 class 全路径形式列出了 keep 在 main dex 中的所有 class；</li>
+<li><code>manifest_keep.txt</code>     : 读取 appManifest 中的 application class，keep 住 application class 实例化过程中的调用类。</li>
+</ul>
+<p>而 Google  在 SDK Build tools 下有这样几个文件</p>
+<ol>
+<li><p><code>mainDexClasses</code>  ： 这个脚本太长了，总结一下它的作用</p>
+<ol>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line"># 省略前面寻找和判断文件路径的过程。</div><div class="line">disableKeepAnnotated=</div><div class="line"></div><div class="line"># 根据 usage 猜测传入参数为 </div><div class="line">#  ./mainDexClasses --output /Users/handsomeyang/Desktop/outDir --disable-annotation-resolution-workaround --aapt-rules /Users/handsomeyang/Desktop/mainDexClassesNoAapt.rules &lt;inputFiles&gt;</div><div class="line"></div><div class="line">while true; do</div><div class="line"># 当 $1 = --output 为 trued ， 可以 man expr 看一下 ： 用法</div><div class="line">if expr &quot;x$1&quot; : &apos;x--output&apos; &gt;/dev/null; then</div><div class="line">    # 将标准输出重定向到 output ，1 代表标准输出</div><div class="line">    exec 1&gt;$2</div><div class="line">    # 删除前两位参数，即 删掉 --output /Users/handsomeyang/Desktop/outDir</div><div class="line">    shift 2</div><div class="line">    </div><div class="line">    # 现在 $1 就是 --disable-annotation-resolution-workaround</div><div class="line">elif expr &quot;x$1&quot; : &apos;x--disable-annotation-resolution-workaround&apos; &gt;/dev/null; then</div><div class="line">    # --disable-annotation-resolution-workaround 是禁用一种容易导致 bug 的 keep 方式</div><div class="line">    disableKeepAnnotated=$1</div><div class="line">    # 在把 --disable-annotation-resolution-workaround 删掉</div><div class="line">    shift 1</div><div class="line">elif expr &quot;x$1&quot; : &quot;x--aapt-rules&quot; &gt;/dev/null; then</div><div class="line">    # ./mainDexClasses --aapt-rules /Users/handsomeyang/Desktop/mainDexClassesNoAapt.rules</div><div class="line">    extrarules=$2</div><div class="line">    # 把剩下参数也删掉</div><div class="line">    shift 2</div><div class="line">    # 此时脚本参数状态： ./mainDexClasses  inputFiles</div><div class="line">else</div><div class="line">    break</div><div class="line">fi</div><div class="line">done</div><div class="line"></div><div class="line"># 把 optinos 删掉后，如果没有 input files 显示 usage</div><div class="line">if [ $# -ne 1 ]; then</div><div class="line">  echo &quot;Usage : $0 [--output &lt;output file&gt;] &lt;application path&gt;&quot; 1&gt;&amp;2</div><div class="line">  exit 2</div><div class="line">fi</div><div class="line"></div><div class="line">tmpOut=`makeTempJar`</div><div class="line"></div><div class="line">trap cleanTmp 0</div><div class="line"></div><div class="line">#  &quot;\&quot; 表示命令换行，</div><div class="line">#  -injars &#123;class_path&#125;     指定要处理的应用程序jar,war,ear和目录   </div><div class="line">#  -libraryjars &#123;classpath&#125;    指定要处理的应用程序jar,war,ear和目录所需要的程序库文件   </div><div class="line">#  -dontoptimize    	    不优化输入的类文件   </div><div class="line">#  -dontobfuscate    	    不混淆输入的类文件</div><div class="line">#  -outjars &#123;class_path&#125;    指定处理完后要输出的jar,war,ear和目录的名称 </div><div class="line">#  -include &#123;filename&#125;      从给定的文件中读取配置参数  </div><div class="line">#   1&gt;/dev/null 表示不再控制台输出命令标准输出</div><div class="line">#   把 &lt;inputFiles&gt; 通过 maDexClasses.rules 和 mainDexClassesNoAapt.rules 规则混淆</div><div class="line">#   并且压缩资源，输出到 temOut 的 jar 文件中</div><div class="line">&quot;$&#123;proguard&#125;&quot; -injars $&#123;@&#125; -dontwarn -forceprocessing  -outjars &quot;$&#123;tmpOut&#125;&quot; \</div><div class="line">  -libraryjars &quot;$&#123;shrinkedAndroidJar&#125;&quot; -dontoptimize -dontobfuscate -dontpreverify \</div><div class="line">  -include &quot;$&#123;baserules&#125;&quot; -include &quot;$&#123;extrarules&#125;&quot; 1&gt;/dev/null || exit 10</div><div class="line"></div><div class="line"># java -cp dx.jar com.android.multidex.MainDexListBuilder --disable-annotation-resolution-workaround tmpOut.jar &lt;inputFiles&gt;</div><div class="line">#  把 混淆后的 jar 和 &lt;inputFiles&gt; 作为参数 调用 com.android.multidex.MainDexListBuilder 的 main 方法。</div><div class="line">java -cp &quot;$jarpath&quot; com.android.multidex.MainDexListBuilder $&#123;disableKeepAnnotated&#125; &quot;$&#123;tmpOut&#125;&quot; $&#123;@&#125; ||  exit 11</div></pre></td></tr></table></figure>
+</li>
+<li><p>找到  <code>mainDexClass.rules</code> 和 <code>dx.jar</code> 路径</p>
+</li>
+<li><p>找到 <code>proguard.sh</code> 和 <code>shrinkedAndroid.jar</code> 路径</p>
+</li>
+<li><p>生成 <code>mainDexClass-&lt;pid&gt;.tmp.jar</code></p>
+</li>
+<li><p>根据 <code>mainDexClasses.rules</code> 和 <code>mainDexClassesNoAapt.rules</code> 的 keep 规则进行混淆和资源压缩</p>
+</li>
+<li><p>调用 dx.jar 中的<code>com.android.multidex.MainDexListBuilder</code>  main 方法来生成 maindexlist.txt</p>
+</li>
+</ol>
+</li>
+<li><p><code>mainDexClasses.rules</code></p>
+<ol>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">  -keep public class * extends android.app.Instrumentation &#123;</div><div class="line">    &lt;init&gt;();</div><div class="line">  &#125;</div><div class="line">  -keep public class * extends android.app.Application &#123;</div><div class="line">    &lt;init&gt;();</div><div class="line">    void attachBaseContext(android.content.Context);</div><div class="line">  &#125;</div><div class="line">  -keep public class * extends android.app.backup.BackupAgent &#123;</div><div class="line">   &lt;init&gt;();</div><div class="line">  &#125;</div><div class="line"># We need to keep all annotation classes because proguard does not trace annotation attribute</div><div class="line"># it just filter the annotation attributes according to annotation classes it already kept.</div><div class="line">  -keep public class * extends java.lang.annotation.Annotation &#123;</div><div class="line">   *;</div><div class="line">  &#125;</div><div class="line"># Keep old fashion tests in the main dex or they&apos;ll be silently ignored by InstrumentationTestRunner</div><div class="line">  -keep public class * extends android.test.InstrumentationTestCase &#123;</div><div class="line">   &lt;init&gt;();</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>主要 keep 了 application 相关类。</p>
+</li>
+</ol>
+</li>
+<li><p><code>mainDexClassesNoAapt.rules</code></p>
+<ol>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">-keep public class * extends android.app.Activity &#123;</div><div class="line">  &lt;init&gt;();</div><div class="line">&#125;</div><div class="line">-keep public class * extends android.app.Service &#123;</div><div class="line">  &lt;init&gt;();</div><div class="line">&#125;</div><div class="line">-keep public class * extends android.content.ContentProvider &#123;</div><div class="line"> &lt;init&gt;();</div><div class="line">&#125;</div><div class="line">-keep public class * extends android.content.BroadcastReceiver &#123;</div><div class="line"> &lt;init&gt;();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>keep 了四大组件，即 组件实例化所需要的相关类。</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>既然要计算 main dex 的 class 引用情况，那么混淆和资源压缩，首先去除没有的引用减少计算量很好理解。</p>
+<p>那么来看下  <code>com.android.multidex.MainDexListBuilder</code>  这个类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * This is a command line tool used by mainDexClasses script to build a main dex classes list. First</div><div class="line"> * argument of the command line is an archive, each class file contained in this archive is used to</div><div class="line"> * identify a class that can be used during secondary dex installation, those class files</div><div class="line"> * are not opened by this tool only their names matter. Other arguments must be zip files or</div><div class="line"> * directories, they constitute in a classpath in with the classes named by the first argument</div><div class="line"> * will be searched. Each searched class must be found. On each of this classes are searched for</div><div class="line"> * their dependencies to other classes. The tool also browses for classes annotated by runtime</div><div class="line"> * visible annotations and adds them to the list/ Finally the tools prints on standard output a list</div><div class="line"> * of class files names suitable as content of the file argument --main-dex-list of dx.</div><div class="line"> * </div><div class="line"> * 用于生成 main dex class list。</div><div class="line"> * 第一个参数是个包含所有 class 的 jar，就是混淆压缩后的 class 的 jar。</div><div class="line"> * 第二个参数就是混淆前的 class 。</div><div class="line"> * 工具还会读取被 RetentionPolicy.RUNTIME 和 RetentionPolicy.CLASS 注解的类添加到 maindexlist 中。</div><div class="line"> */</div><div class="line">  </div><div class="line"> /**</div><div class="line">  * args : --disable-annotation-resolution-workaround tmpOut.jar &lt;inputFiles&gt;</div><div class="line">  * 1st arg : --disable-annotation-resolution-workaround</div><div class="line">  * 2nd arg : tmpOut.jar </div><div class="line">  * 3rd arg : &lt;inputFiles&gt;</div><div class="line">  */</div><div class="line">  public static void main(String[] args) &#123;</div><div class="line">    int argIndex = 0;</div><div class="line"></div><div class="line">    boolean keepAnnotated;</div><div class="line">    for(keepAnnotated = true; argIndex &lt; args.length - 2; ++argIndex) &#123;</div><div class="line">      // 判断第一个参数是否 禁用 容易产生 bug 的生成 keep file 模式。</div><div class="line">      if (args[argIndex].equals(&quot;--disable-annotation-resolution-workaround&quot;)) &#123;</div><div class="line">        keepAnnotated = false;</div><div class="line">      &#125; else &#123;</div><div class="line">        System.err.println(&quot;Invalid option &quot; + args[argIndex]);</div><div class="line">        // Usage 就是不要手动调用这里的 main 方法，是给 mainDexClasses 脚本来调用的。</div><div class="line">        printUsage();</div><div class="line">        System.exit(1);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (args.length - argIndex != 2) &#123;</div><div class="line">      printUsage();</div><div class="line">      System.exit(1);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    try &#123;</div><div class="line">     /**</div><div class="line">      * @param keepAnnotated      : true 禁用默生成 keep file 模式</div><div class="line">      * @param args[argIndex]     : 混淆后的 jar file</div><div class="line">      * @param args[argIndex + 1] : mainDexClasses &lt;input files&gt;  多个 inputFile 用 &quot;:&quot; 隔开</div><div class="line">      */</div><div class="line">      MainDexListBuilder builder = new MainDexListBuilder(keepAnnotated, args[argIndex], args[argIndex + 1]);</div><div class="line">      // toKeep set 就是 maindexlist</div><div class="line">      Set&lt;String&gt; toKeep = builder.getMainDexList();</div><div class="line">      printList(toKeep);</div><div class="line">    &#125; catch (IOException var5) &#123;</div><div class="line">      System.err.println(&quot;A fatal error occured: &quot; + var5.getMessage());</div><div class="line">      System.exit(1);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">   </div><div class="line">   </div><div class="line">   public MainDexListBuilder(boolean keepAnnotated, String rootJar, String pathString)&#123;</div><div class="line">        ZipFile jarOfRoots = null;</div><div class="line">        Path path = null;</div><div class="line">        try &#123;</div><div class="line">            try &#123;</div><div class="line">                jarOfRoots = new ZipFile(rootJar);</div><div class="line">            &#125; catch (IOException e) &#123;</div><div class="line">                throw new IOException(&quot;\&quot;&quot; + rootJar + &quot;\&quot; can not be read as a zip archive. (&quot;</div><div class="line">                        + e.getMessage() + &quot;)&quot;, e);</div><div class="line">            &#125;</div><div class="line">            // 把多个 input files 放进 list </div><div class="line">            path = new Path(pathString);</div><div class="line"></div><div class="line">            ClassReferenceListBuilder mainListBuilder = new ClassReferenceListBuilder(path);</div><div class="line">            // 1. 缓存所有 jar 报中的 class name </div><div class="line">            // 2. 把 寻找并添加 class 依赖</div><div class="line">            // 2.1 如果是类    ：  递归寻找该类父类，添加到集合</div><div class="line">            // 2.2 如果是Filed ： 递归寻找 Field 父类，添加到集合</div><div class="line">            // 2.3 如果是方法  ：  递归寻找 返回值和每个参数的父类，添加到集合</div><div class="line">            mainListBuilder.addRoots(jarOfRoots);</div><div class="line">            for (String className : mainListBuilder.getClassNames()) &#123;</div><div class="line">                // fileToKeep 就是 maindexlist</div><div class="line">                filesToKeep.add(className + CLASS_EXTENSION);</div><div class="line">            &#125;</div><div class="line">            if (keepAnnotated) &#123;</div><div class="line">                // 遍历 path 中的每一个 element 无论是类、方法、字段、如果带有  RetentionPolicy.RUNTIME 和 RetentionPolicy.CLASS 注解就添加到 keep files</div><div class="line">                keepAnnotated(path);</div><div class="line">            &#125;</div><div class="line">          &#125;  </div><div class="line">     ...</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>理下生成 <code>maindexlist</code> 流程：</p>
+<ol>
+<li><code>mainDexClasses</code> 脚本进行混淆 class file，调用 dx.jar 中 <code>MainDexListBuilder</code> Main 方法，将 <code>mainDexClasses.rules</code> 和 <code>mainDexClassesNoAapt.rules</code> 的 keep 规则作为参数传入；</li>
+<li>main 方法处理参数，实例 <code>ClassReferenceListBuilder</code> 调用 <code>addRoots</code> 添加依赖；</li>
+<li>判断 class 是否带有 运行时可见 注解</li>
+<li><code>mainDexListBuilder.getMainDexList()</code> 返回 main dex 中需要的 class list；</li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/19/support-multidex原理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1232,7 +1508,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
