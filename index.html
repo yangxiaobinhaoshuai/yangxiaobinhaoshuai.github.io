@@ -331,10 +331,16 @@
 
       
         
-          
-            <p>[</p>
-
-          
+          <h1 id="Android-Gradle-plugin-源码分析"><a href="#Android-Gradle-plugin-源码分析" class="headerlink" title="Android Gradle plugin 源码分析"></a>Android Gradle plugin 源码分析</h1><p>Gradle 是一个基于 groovy 但可以兼容任何基于 JVM 语言的强大构建工具。因为 DSL 和 Gradle 声明周期的灵活性，使得构建项目脚本配置不在冗余，且提供了例如 <code>BuildType</code>、<code>productFlovor</code> 等构建模式，让项目能在多种环境构建之间自由切换；而且多种多样的 Gradle plugin 也让项目构建如虎添翼。</p>
+<p>而在 Android 中，为了更方便应用开发者，Google 推出了 <code>Android gradle plugin</code>  在 Gradle 许多原有基础构建功能上，添加了定制化功能；也是我们 build.gradle 许多可配置节点的如 <code>Android {}</code> 的来源。</p>
+<p>至于插件本身，就是默认配置i在 project 级 build.gradle 中的 <code>classpath &#39;com.android.tools.build:gradle:3.1.1&#39;</code>   ，  我们平时所说的 Android Studio 2.3 和 3.0 其实指的就是 Gradle 中 Android plugin 的版本。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/04/22/Gradle构建APK全过程解析-md/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>

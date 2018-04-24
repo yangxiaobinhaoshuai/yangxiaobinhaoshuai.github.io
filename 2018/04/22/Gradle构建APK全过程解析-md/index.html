@@ -90,16 +90,18 @@
 
 
 
-<meta name="description" content="[">
+<meta name="description" content="Android Gradle plugin 源码分析Gradle 是一个基于 groovy 但可以兼容任何基于 JVM 语言的强大构建工具。因为 DSL 和 Gradle 声明周期的灵活性，使得构建项目脚本配置不在冗余，且提供了例如 BuildType、productFlovor 等构建模式，让项目能在多种环境构建之间自由切换；而且多种多样的 Gradle plugin 也让项目构建如虎添翼。 而">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Gradle构建APK全过程解析.md">
 <meta property="og:url" content="http://yoursite.com/2018/04/22/Gradle构建APK全过程解析-md/index.html">
 <meta property="og:site_name" content="杨晓彬">
-<meta property="og:description" content="[">
-<meta property="og:updated_time" content="2018-04-22T13:18:42.732Z">
+<meta property="og:description" content="Android Gradle plugin 源码分析Gradle 是一个基于 groovy 但可以兼容任何基于 JVM 语言的强大构建工具。因为 DSL 和 Gradle 声明周期的灵活性，使得构建项目脚本配置不在冗余，且提供了例如 BuildType、productFlovor 等构建模式，让项目能在多种环境构建之间自由切换；而且多种多样的 Gradle plugin 也让项目构建如虎添翼。 而">
+<meta property="og:image" content="http://yoursite.com/img/android%20项目构建过程.[ng]">
+<meta property="og:updated_time" content="2018-04-24T08:35:05.281Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gradle构建APK全过程解析.md">
-<meta name="twitter:description" content="[">
+<meta name="twitter:description" content="Android Gradle plugin 源码分析Gradle 是一个基于 groovy 但可以兼容任何基于 JVM 语言的强大构建工具。因为 DSL 和 Gradle 声明周期的灵活性，使得构建项目脚本配置不在冗余，且提供了例如 BuildType、productFlovor 等构建模式，让项目能在多种环境构建之间自由切换；而且多种多样的 Gradle plugin 也让项目构建如虎添翼。 而">
+<meta name="twitter:image" content="http://yoursite.com/img/android%20项目构建过程.[ng]">
 
 
 
@@ -332,7 +334,24 @@
       
 
       
-        <p>[</p>
+        <h1 id="Android-Gradle-plugin-源码分析"><a href="#Android-Gradle-plugin-源码分析" class="headerlink" title="Android Gradle plugin 源码分析"></a>Android Gradle plugin 源码分析</h1><p>Gradle 是一个基于 groovy 但可以兼容任何基于 JVM 语言的强大构建工具。因为 DSL 和 Gradle 声明周期的灵活性，使得构建项目脚本配置不在冗余，且提供了例如 <code>BuildType</code>、<code>productFlovor</code> 等构建模式，让项目能在多种环境构建之间自由切换；而且多种多样的 Gradle plugin 也让项目构建如虎添翼。</p>
+<p>而在 Android 中，为了更方便应用开发者，Google 推出了 <code>Android gradle plugin</code>  在 Gradle 许多原有基础构建功能上，添加了定制化功能；也是我们 build.gradle 许多可配置节点的如 <code>Android {}</code> 的来源。</p>
+<p>至于插件本身，就是默认配置i在 project 级 build.gradle 中的 <code>classpath &#39;com.android.tools.build:gradle:3.1.1&#39;</code>   ，  我们平时所说的 Android Studio 2.3 和 3.0 其实指的就是 Gradle 中 Android plugin 的版本。</p>
+<a id="more"></a>
+<p>介绍 Android plugin 工作流程前我们先了解下 Android apk 编译过程，上一张老生常谈的图：</p>
+<p><img src="/img/android 项目构建过程.[ng]" alt="android 项目构建过程"></p>
+<p>编译过程分七步：</p>
+<ol>
+<li>aapt 编译资源文件，生成 R 文件</li>
+<li>编译 aidl 文件</li>
+<li>编译 java 代码为 class </li>
+<li>dx 编译 class 为 dex</li>
+<li>打包 apk</li>
+<li>sign apk</li>
+<li>zipalign 对齐处理 apk</li>
+</ol>
+<p>Terminal 执行：<code>./gradlew assembleDebug --drt-run</code>  ，dry run 表示只显示 build 过程 task name 不做实际构建工作， task 后面的 <code>SKIPPED</code> 也表示该 task 并没有被实际执行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">1.  :app:preBuild SKIPPED</div><div class="line">2.  :app:preDebugBuild SKIPPED</div><div class="line">3.  :app:compileDebugAidl SKIPPED</div><div class="line">4.  :app:compileDebugRenderscript SKIPPED</div><div class="line">5.  :app:checkDebugManifest SKIPPED</div><div class="line">6.  :app:generateDebugBuildConfig SKIPPED</div><div class="line">7.  :app:mainApkListPersistenceDebug SKIPPED</div><div class="line">8.  :app:generateDebugResValues SKIPPED</div><div class="line">9.  :app:generateDebugResources SKIPPED</div><div class="line">10. :app:mergeDebugResources SKIPPED</div><div class="line">11. :app:createDebugCompatibleScreenManifests SKIPPED</div><div class="line">12. :app:processDebugManifest SKIPPED</div><div class="line">13. :app:splitsDiscoveryTaskDebug SKIPPED</div><div class="line">14. :app:processDebugResources SKIPPED</div><div class="line">15. :app:compileDebugKotlin SKIPPED</div><div class="line">16. :app:prepareLintJar SKIPPED</div><div class="line">17. :app:generateDebugSources SKIPPED</div><div class="line">18. :app:javaPreCompileDebug SKIPPED</div><div class="line">19. :app:compileDebugJavaWithJavac SKIPPED</div><div class="line">20. :app:compileDebugNdk SKIPPED</div><div class="line">21. :app:compileDebugSources SKIPPED</div><div class="line">22. :app:mergeDebugShaders SKIPPED</div><div class="line">23. :app:compileDebugShaders SKIPPED</div><div class="line">24. :app:generateDebugAssets SKIPPED</div><div class="line">25. :app:mergeDebugAssets SKIPPED</div><div class="line">26. :app:transformClassesWithDexBuilderForDebug SKIPPED</div><div class="line">27. :app:transformClassesWithMultidexlistForDebug SKIPPED</div><div class="line">28. :app:transformDexArchiveWithDexMergerForDebug SKIPPED</div><div class="line">29. :app:mergeDebugJniLibFolders SKIPPED</div><div class="line">30. :app:transformNativeLibsWithMergeJniLibsForDebug SKIPPED</div><div class="line">31. :app:transformNativeLibsWithStripDebugSymbolForDebug SKIPPED</div><div class="line">32. :app:processDebugJavaRes SKIPPED</div><div class="line">33. :app:transformResourcesWithMergeJavaResForDebug SKIPPED</div><div class="line">34. :app:validateSigningDebug SKIPPED</div><div class="line">35. :app:packageDebug SKIPPED</div><div class="line">36. :app:assembleDebug SKIPPED</div></pre></td></tr></table></figure>
 
       
     </div>
@@ -424,8 +443,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/xinzhizhu.png"
@@ -503,6 +531,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-Gradle-plugin-源码分析"><span class="nav-number">1.</span> <span class="nav-text">Android Gradle plugin 源码分析</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
