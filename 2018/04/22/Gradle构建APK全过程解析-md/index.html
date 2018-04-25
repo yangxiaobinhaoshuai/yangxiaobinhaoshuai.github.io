@@ -97,7 +97,7 @@
 <meta property="og:site_name" content="杨晓彬">
 <meta property="og:description" content="Android Gradle plugin 源码分析Gradle 是一个基于 groovy 但可以兼容任何基于 JVM 语言的强大构建工具。因为 DSL 和 Gradle 声明周期的灵活性，使得构建项目脚本配置不在冗余，且提供了例如 BuildType、productFlovor 等构建模式，让项目能在多种环境构建之间自由切换；而且多种多样的 Gradle plugin 也让项目构建如虎添翼。 而">
 <meta property="og:image" content="http://yoursite.com/img/android%20项目构建过程.png]">
-<meta property="og:updated_time" content="2018-04-24T11:16:29.082Z">
+<meta property="og:updated_time" content="2018-04-25T02:29:45.713Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gradle构建APK全过程解析.md">
 <meta name="twitter:description" content="Android Gradle plugin 源码分析Gradle 是一个基于 groovy 但可以兼容任何基于 JVM 语言的强大构建工具。因为 DSL 和 Gradle 声明周期的灵活性，使得构建项目脚本配置不在冗余，且提供了例如 BuildType、productFlovor 等构建模式，让项目能在多种环境构建之间自由切换；而且多种多样的 Gradle plugin 也让项目构建如虎添翼。 而">
@@ -338,7 +338,27 @@
 <p>而在 Android 中，为了更方便应用开发者，Google 推出了 <code>Android gradle plugin</code>  在 Gradle 许多原有基础构建功能上，添加了定制化功能；也是我们 build.gradle 许多可配置节点的如 <code>Android {}</code> 的来源。</p>
 <p>至于插件本身，就是默认配置i在 project 级 build.gradle 中的 <code>classpath &#39;com.android.tools.build:gradle:3.1.1&#39;</code>   ，  我们平时所说的 Android Studio 2.3 和 3.0 其实指的就是 Gradle 中 Android plugin 的版本。</p>
 <a id="more"></a>
-<p>介绍 Android plugin 工作流程前我们先了解下 Android apk 编译过程，上一张老生常谈的图：</p>
+<h2 id="Gradle-构建-APK-流程"><a href="#Gradle-构建-APK-流程" class="headerlink" title="Gradle 构建 APK 流程"></a>Gradle 构建 APK 流程</h2><p>为了更好说明 Gradle 构建过程，简单介绍下 Gradle 相关知识：</p>
+<h4 id="Gradle-插件基础功能"><a href="#Gradle-插件基础功能" class="headerlink" title="Gradle 插件基础功能"></a>Gradle 插件基础功能</h4><ol>
+<li>Gradle 基础 Task 有 assemble（生成产出物，如 jar、war 等）、clean（清除产出物）。</li>
+<li>Java 插件基于基础 Task 提供了更强大的实现<ol>
+<li>assemble  :  输出 jar 包；</li>
+<li>check        ：运行单元测试和集成测试；</li>
+<li>build         ： asseble + check ；</li>
+<li>clean         ： 删除输出目录文件；</li>
+</ol>
+</li>
+<li>Android Gradle plugin 又基于 Java 插件为基础 Task 提供了 Android 定制化功能和增加了若干新 Task<ol>
+<li>assemble  :    输出 apk</li>
+<li>check         :    运行 Lint 检测，一旦检测异常停止构建过程；</li>
+<li>build          ： assemble + check</li>
+<li>clean          :    删除输出目录</li>
+</ol>
+</li>
+</ol>
+<h4 id="Gradle-的生命周期"><a href="#Gradle-的生命周期" class="headerlink" title="Gradle 的生命周期"></a>Gradle 的生命周期</h4><p> <strong>任何 Task 运行都会有三个阶段</strong> ：<code>Initialization</code>  —&gt; <code>Configuration</code>  —&gt; <code>Execution</code></p>
+<hr>
+<h4 id="APK-编译过程"><a href="#APK-编译过程" class="headerlink" title="APK 编译过程"></a>APK 编译过程</h4><p>介绍 Android plugin 工作流程前我们先了解下 Android apk 编译过程，上一张老生常谈的图：</p>
 <p><img src="/img/android 项目构建过程.png]" alt="android 项目构建过程"></p>
 <p>编译过程分七步：</p>
 <ol>
@@ -350,7 +370,7 @@
 <li>sign apk</li>
 <li>zipalign 对齐处理 apk</li>
 </ol>
-<p>Terminal 执行：<code>./gradlew assembleDebug --drt-run</code>  ，dry run 表示只显示 build 过程 task name 不做实际构建工作， task 后面的 <code>SKIPPED</code> 也表示该 task 并没有被实际执行。</p>
+<h4 id="APK-编译流程对应-Gradle-tasks"><a href="#APK-编译流程对应-Gradle-tasks" class="headerlink" title="APK 编译流程对应 Gradle tasks"></a>APK 编译流程对应 Gradle tasks</h4><p>Terminal 执行：<code>./gradlew assembleDebug --drt-run</code>  ，dry run 表示只显示 build 过程 task name 不做实际构建工作， task 后面的 <code>SKIPPED</code> 也表示该 task 并没有被实际执行。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">1.  :app:preBuild SKIPPED</div><div class="line">2.  :app:preDebugBuild SKIPPED</div><div class="line">3.  :app:compileDebugAidl SKIPPED</div><div class="line">4.  :app:compileDebugRenderscript SKIPPED</div><div class="line">5.  :app:checkDebugManifest SKIPPED</div><div class="line">6.  :app:generateDebugBuildConfig SKIPPED</div><div class="line">7.  :app:mainApkListPersistenceDebug SKIPPED</div><div class="line">8.  :app:generateDebugResValues SKIPPED</div><div class="line">9.  :app:generateDebugResources SKIPPED</div><div class="line">10. :app:mergeDebugResources SKIPPED</div><div class="line">11. :app:createDebugCompatibleScreenManifests SKIPPED</div><div class="line">12. :app:processDebugManifest SKIPPED</div><div class="line">13. :app:splitsDiscoveryTaskDebug SKIPPED</div><div class="line">14. :app:processDebugResources SKIPPED</div><div class="line">15. :app:compileDebugKotlin SKIPPED</div><div class="line">16. :app:prepareLintJar SKIPPED</div><div class="line">17. :app:generateDebugSources SKIPPED</div><div class="line">18. :app:javaPreCompileDebug SKIPPED</div><div class="line">19. :app:compileDebugJavaWithJavac SKIPPED</div><div class="line">20. :app:compileDebugNdk SKIPPED</div><div class="line">21. :app:compileDebugSources SKIPPED</div><div class="line">22. :app:mergeDebugShaders SKIPPED</div><div class="line">23. :app:compileDebugShaders SKIPPED</div><div class="line">24. :app:generateDebugAssets SKIPPED</div><div class="line">25. :app:mergeDebugAssets SKIPPED</div><div class="line">26. :app:transformClassesWithDexBuilderForDebug SKIPPED</div><div class="line">27. :app:transformClassesWithMultidexlistForDebug SKIPPED</div><div class="line">28. :app:transformDexArchiveWithDexMergerForDebug SKIPPED</div><div class="line">29. :app:mergeDebugJniLibFolders SKIPPED</div><div class="line">30. :app:transformNativeLibsWithMergeJniLibsForDebug SKIPPED</div><div class="line">31. :app:transformNativeLibsWithStripDebugSymbolForDebug SKIPPED</div><div class="line">32. :app:processDebugJavaRes SKIPPED</div><div class="line">33. :app:transformResourcesWithMergeJavaResForDebug SKIPPED</div><div class="line">34. :app:validateSigningDebug SKIPPED</div><div class="line">35. :app:packageDebug SKIPPED</div><div class="line">36. :app:assembleDebug SKIPPED</div></pre></td></tr></table></figure>
 <p>TODO…</p>
 
@@ -398,6 +418,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/25/各种编译错误-md/" rel="prev" title="各种编译错误.md">
+                各种编译错误.md <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -469,7 +493,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -542,7 +566,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-Gradle-plugin-源码分析"><span class="nav-number">1.</span> <span class="nav-text">Android Gradle plugin 源码分析</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-Gradle-plugin-源码分析"><span class="nav-number">1.</span> <span class="nav-text">Android Gradle plugin 源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Gradle-构建-APK-流程"><span class="nav-number">1.1.</span> <span class="nav-text">Gradle 构建 APK 流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Gradle-插件基础功能"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">Gradle 插件基础功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Gradle-的生命周期"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">Gradle 的生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#APK-编译过程"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">APK 编译过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#APK-编译流程对应-Gradle-tasks"><span class="nav-number">1.1.0.4.</span> <span class="nav-text">APK 编译流程对应 Gradle tasks</span></a></li></ol></li></ol></li></ol></li></ol></div>
             
 
           </div>
